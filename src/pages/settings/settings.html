@@ -5,30 +5,61 @@
     </ion-title>
   </ion-navbar>
 </ion-header>
-<ion-content >
-<form [formGroup]="gameForm">
-    <ion-list>
-      <ion-item>
-        <ion-label floating>Minuten per helft</ion-label>
-        <ion-input type="number" formControlName="minutesPerHalf" step=".1"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label floating>Aantal veldspelers</ion-label>
-        <ion-input type="number" formControlName="fieldPlayers" step="1"></ion-input>
-      </ion-item>
-    </ion-list>
-    <ion-list radio-group formControlName="fullGame">
-      <ion-list-header>
-        Wisselen per
-      </ion-list-header>
-      <ion-item>
-        <ion-label>Helft</ion-label>
-        <ion-radio value="false"></ion-radio>
-      </ion-item>
-      <ion-item>
-        <ion-label>Wedstrijd</ion-label>
-        <ion-radio value="true"></ion-radio>
-      </ion-item>
+<ion-content>
+  <ion-toolbar no-border-top>
+    <ion-segment [(ngModel)]="pane">
+      <ion-segment-button value="players">
+        Spelers
+      </ion-segment-button>
+      <ion-segment-button value="settings">
+        Instellingen
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+  <div [ngSwitch]="pane">
+    <form [formGroup]="settingsForm" *ngSwitchCase="'settings'">
+      <ion-list>
+        <ion-item>
+          <ion-label floating>Minuten per helft</ion-label>
+          <ion-input type="number" formControlName="minutesPerHalf" step=".1"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label floating>Aantal veldspelers</ion-label>
+          <ion-input type="number" formControlName="fieldPlayers" step="1"></ion-input>
+        </ion-item>
       </ion-list>
-</form>
-    </ion-content>
+      <ion-list radio-group formControlName="fullGame">
+        <ion-list-header>
+          Wisselen per
+        </ion-list-header>
+        <ion-item>
+          <ion-label>Helft</ion-label>
+          <ion-radio value="false"></ion-radio>
+        </ion-item>
+        <ion-item>
+          <ion-label>Wedstrijd</ion-label>
+          <ion-radio value="true"></ion-radio>
+        </ion-item>
+      </ion-list>
+    </form>
+    <form *ngSwitchCase="'players'">
+      <ion-list>
+        <ion-item-sliding *ngFor="let player of players">
+          <ion-item>
+            {{ player.name }}
+          </ion-item>
+          <ion-item-options side="right">
+            <button ion-button color="danger" (click)="onDelete(player)">
+              <ion-icon name="trash"></ion-icon>
+              Verwijder
+            </button>
+          </ion-item-options>
+        </ion-item-sliding>
+      </ion-list>
+      <button ion-button full icon-left color="primary" (click)="doPromptForPlayerName()">
+        <ion-icon name="add"></ion-icon> 
+        Nieuwe speler
+      </button>
+    </form>
+  </div>
+</ion-content>

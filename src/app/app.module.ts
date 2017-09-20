@@ -2,10 +2,11 @@
 
 import { NgModule, ErrorHandler } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { IonicStorageModule } from '@ionic/storage';
 
-import { MyApp } from './app.component';
+import { Wisseltimer } from './app.component';
 
 import { SettingsPage } from './../pages/settings/settings';
 import { AttendancePage } from './../pages/attendance/attendance';
@@ -17,7 +18,7 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 
 @NgModule({
   declarations: [
-    MyApp,
+    Wisseltimer,
     SettingsPage,
     AttendancePage,
     HomePage,
@@ -25,12 +26,12 @@ import { SplashScreen } from '@ionic-native/splash-screen';
   ],
   imports: [
     BrowserModule,
-    IonicModule.forRoot(MyApp),
+    IonicModule.forRoot(Wisseltimer),
     IonicStorageModule.forRoot()
   ],
   bootstrap: [IonicApp],
   entryComponents: [
-    MyApp,
+    Wisseltimer,
     SettingsPage,
     AttendancePage,
     HomePage,
@@ -44,10 +45,8 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 })
 export class AppModule {
 
-  constructor(private storage: IonicStorageModule) {
+  constructor() {
     console.log( "AppModule constructor." );
-
-    // check for settings, initialize default values when not present
 
 
   }

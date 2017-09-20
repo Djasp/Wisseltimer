@@ -5,12 +5,17 @@
     </ion-title>
   </ion-navbar>
 </ion-header>
-
 <ion-content>
+  <div class="padding" style="padding: 20px;">Markeer de spelers die aanwezig zijn. Wanneer spelers aanwezig zijn, maar niet gewisseld hoeven te worden (bijvoorbeeld keepers),
+    zet dan de schakelaar uit.</div>
   <ion-list>
-    <ion-list-header>Spelerslijst</ion-list-header>
-    <ion-item>
- 
+    <ion-list-header>Markeer de aanwezige spelers</ion-list-header>
+    <ion-item *ngFor="let player of players">
+      <ion-checkbox (click)="onSelect(player)" [(checked)]="player.isPresent"></ion-checkbox>
+     wisselen <ion-toggle (click)="onToggle(player)" [(checked)]="!player.doNotSubstitute"></ion-toggle>
+      <ion-label>
+        {{ player.name }}
+      </ion-label>
     </ion-item>
   </ion-list>
 </ion-content>

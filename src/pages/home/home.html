@@ -1,20 +1,23 @@
 <ion-header>
   <ion-navbar>
-    <ion-title>Wisseltimer</ion-title>
+    <ion-title>Wissels per {{whatWePlay}}</ion-title>
   </ion-navbar>
 </ion-header>
-
 <ion-content padding>
-  <h2>Welcome to Ionic!</h2>
-  <p>
-    This starter project comes with simple tabs-based layout for apps
-    that are going to primarily use a Tabbed UI.
-  </p>
-  <p>
-    Take a look at the <code>src/pages/</code> directory to add or change tabs,
-    update any existing page or create new pages.
-  </p>
-  <button ion-button icon-left>
-    <ion-icon name="play"></ion-icon> Start
+    <button ion-button icon-left *ngIf="availablePlayers.length >= fieldPlayers">
+    <ion-icon name="play" (click)="startGame()"></ion-icon> Start
   </button>
+  <ion-list>
+    <ion-item-divider color="light">Startopstelling</ion-item-divider>
+    
+    <ion-item *ngFor="let player of getStartOpstelling()">
+{{player}}
+    </ion-item>
+  </ion-list>
+  <ion-list *ngFor="let time of timeBlocks">
+
+    <ion-item-divider color="light">Wissels na {{time}}</ion-item-divider>
+  </ion-list>
+
+
 </ion-content>

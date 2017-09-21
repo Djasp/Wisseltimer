@@ -11,15 +11,16 @@ import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 export class AttendancePage {
   private players: Player[];
  
-  constructor(public navCtrl: NavController, private storage: Storage, private formbuilder: FormBuilder) {
+  constructor(public navCtrl: NavController, private storage: Storage) {
+  }
 
-   
-
+  /**  fires every time a page becomes the active view */
+  ionViewWillEnter() {
     // load players list
     this.refreshPlayerList();
   }
 
-  /**Get the list of players from the storage  */
+  /** Get the list of players from the storage  */
   refreshPlayerList(): void {
     this.storage.get("players").then((value) => {
       this.players = value;

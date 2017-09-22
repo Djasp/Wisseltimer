@@ -2,8 +2,8 @@ import moment from 'moment';
 
 export class Game {
 
-    fieldPlayers: number = 5;
-    minutesPerHalf: number = 0.2;
+    fieldPlayers: number = 6;
+    minutesPerHalf: number = 20;
     gameStarted: boolean = false;
     actualGameStartedTime: moment.Moment;
     fullGame: boolean = false;

@@ -1,9 +1,10 @@
 export class Player {
     name: string;
-    isPresent: boolean = true ;
+    isPresent: boolean = true;
     doNotSubstitute: boolean = false;
-    
-    constructor(name:string) {
+    inStartingFormation: boolean = false;
+
+    constructor(name: string) {
         this.name = name;
     }
 }

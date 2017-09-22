@@ -1,0 +1,30 @@
+<ion-header>
+    <ion-navbar>
+        <button ion-button menuToggle>
+            <ion-icon name="menu"></ion-icon>
+        </button>
+        <ion-title>
+            Team
+        </ion-title>
+    </ion-navbar>
+</ion-header>
+<ion-content padding>
+    <h1>Spelers in het team</h1>
+    <ion-list no-lines>
+        <ion-item *ngFor="let player of players">
+            <ion-icon name="person" item-start></ion-icon>
+            <h2>{{ player.name }}</h2>
+            <button ion-button color="danger" outline (click)="onDelete(player)" item-end>
+                verwijder
+            </button>
+        </ion-item>
+    </ion-list>
+    <button ion-button full icon-left color="primary" (click)="doPromptForPlayerName()">
+        <ion-icon name="person-add"></ion-icon> 
+        Nieuwe speler
+      </button>
+    <button ion-button full icon-left color="danger" (click)="doConfirmDeleteTeam()">
+        <ion-icon name="trash"></ion-icon> 
+        Verwijder hele team
+      </button>
+</ion-content>

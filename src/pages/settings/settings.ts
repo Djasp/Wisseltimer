@@ -1,4 +1,3 @@
-import { Player } from './../../app/shared/player.model';
 import { Game } from './../../app/shared/game.model';
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
@@ -14,8 +13,6 @@ import { AlertController } from 'ionic-angular';
 export class SettingsPage {
   private settingsForm: FormGroup;
   private alertIsVisible; // flag is alert is already visible
-  private pane: string = "players"; // default pane
-  private players: Player[] = []; // array with players
 
   constructor(public navCtrl: NavController, private storage: Storage, private formbuilder: FormBuilder, private alertCtrl: AlertController) {
     
@@ -56,38 +53,7 @@ export class SettingsPage {
       this.settingsForm.controls['fullGame'].setValue(game.fullGame);
     });
 
-    // load players list
-    this.refreshPlayerList();
-  }
-
-  /**Get the list of players from the storage  */
-  refreshPlayerList(): void {
-    this.storage.get("players").then((value) => {
-      this.players = value;
-    });
-  }
-
-  /** Show confirmation dialog and delete the player */
-  onDelete(player: Player): void {
-    let confirm = this.alertCtrl.create({
-      title: 'Verwijderen?',
-      message: 'Weet je zeker dat je '+player.name +' wilt verwijderen?',
-      buttons: [
-        {
-          text: 'Nee'        
-        },
-        {
-          text: 'Ja',
-          handler: () => {
-            var index = this.players.indexOf(player); // get the index of the item to be deleted 
-            this.players.splice(index, 1); // remove from array;
-            this.storage.set("players", this.players); // save 
-            this.refreshPlayerList(); // reload 
-          }
-        }
-      ]
-    });
-    confirm.present(); // show dialog
+  
   }
 
   /** Show alert when settings form is invalid */
@@ -105,39 +71,6 @@ export class SettingsPage {
       }]
     });
     this.alertIsVisible = true;
-    alert.present();
-  }
-
-  doPromptForPlayerName(): void {
-    let alert = this.alertCtrl.create({
-      title: 'Nieuwe speler',
-      message: 'Voer de naam van de speler in',
-      inputs: [
-        {
-          name: 'name',
-          placeholder: 'Naam'
-        },
-      ],
-      buttons: [
-        {
-          text: 'Annuleer',
-          handler: () => {
-            console.log('Cancel clicked');
-          }
-        },
-        {
-          text: 'Bewaar',
-          handler: data => {
-            console.log('Saved clicked');
-
-            this.players.push(new Player(data.name));
-            this.storage.set("players", this.players); // save 
-            this.refreshPlayerList(); // reload 
-
-          }
-        }
-      ]
-    });
     alert.present();
   }
 }  

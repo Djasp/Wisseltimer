@@ -1,9 +1,9 @@
 export class Substitute {
-    name: string;
-    out: boolean = false;
-   
-    constructor(name: string, out:boolean) {
-        this.name = name;
-        this.out = out;
+    inName: string;
+    outName: string;
+
+    constructor(inName: string, outName: string) {
+        this.inName = inName;
+        this.outName = outName;
     }
 }

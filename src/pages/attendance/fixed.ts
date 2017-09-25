@@ -1,3 +1,4 @@
+import { GameService } from './../../app/shared/services/game.service';
 import { Settings } from './../../app/shared/models/settings.model';
 import { SettingsService } from './../../app/shared/services/settings.service';
 import { TeamService } from './../../app/shared/services/team.service';
@@ -23,6 +24,7 @@ export class FixedPage {
         public navParams: NavParams,
         private settingsService: SettingsService,
         private teamService: TeamService,
+        private gameService: GameService,
         public toastCtrl: ToastController) {
         this.selectedItem = navParams.get('item');
     }
@@ -33,38 +35,38 @@ export class FixedPage {
         this.refreshPlayerList();
     }
 
-    /** Get the list of players from the storage  */
+    /**
+     * Load the players that are in the starting formation 
+     * 
+     * @memberof FixedPage
+     */
     refreshPlayerList(): void {
-
         this.teamService.loadTeam().then(value => {
             this.players = value.players.filter(player => player.isPresent && player.inStartingFormation);
         });
     }
 
+    /**
+     * Mark player substitutable or not
+     * 
+     * @param {Player} player 
+     * @memberof FixedPage
+      */
     onTogglePlayerDoNotSubstitute(player: Player): void {
         this.teamService.togglePlayerDoNotSubstitute(player).then(() => {
             this.refreshPlayerList();
         });
     }
 
-    /** Mark formation done and to the next page */
+    /**
+     * Mark the formation done for the game and redirect to the homepage
+     * 
+     * @memberof FixedPage
+     */
     goToHome() {
-        // let game: Game;
-        // this.storage.get("game").then((value) => {
-        //     // get the game object, set properties
-        //     game = value;
-        //     game.formationDone = true;
-        //     game.actualFormationDoneTime = moment(); // now 
-        //     game.gameTime = null;
-        //     game.gamePaused = false;
-        //     game.gameStarted = false;
-
-        //     // save the game object 
-        //     this.storage.set("game", game).then(
-        //         () => this.navCtrl.setRoot(HomePage),
-        //         () => console.log("Task Errored!")
-        //     );
-        // });
+        this.gameService.markFormationDone().then(() => {
+            this.navCtrl.setRoot(HomePage)
+        });
     }
 
     itemTapped(event, item) {

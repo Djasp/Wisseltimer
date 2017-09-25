@@ -1,69 +1,74 @@
-import { FormationPage } from './../formation/formation';
-import { Player } from './../../app/shared/player.model';
+import { Settings } from './../../app/shared/models/settings.model';
+import { SettingsService } from './../../app/shared/services/settings.service';
+import { TeamService } from './../../app/shared/services/team.service';
+import { FormationPage } from './../attendance/formation';
+import { Player } from './../../app/shared/models/player.model';
 import { Component } from '@angular/core';
 import { NavController, NavParams } from 'ionic-angular';
-import { Storage } from '@ionic/storage';
+
 import { ToastController } from 'ionic-angular';
 
 @Component({
   selector: 'page-attendance',
   templateUrl: 'attendance.html'
 })
-  
+
 export class AttendancePage {
   private players: Player[];
+  private currentSettings: Settings;
+  private allowNextScreen: boolean = false;
+
   selectedItem: any;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, private storage: Storage, public toastCtrl: ToastController) {
+  constructor(public navCtrl: NavController,
+    public navParams: NavParams,
+    private settingsService: SettingsService,
+    private teamService: TeamService,
+    public toastCtrl: ToastController) {
+
     this.selectedItem = navParams.get('item');
   }
   /**  fires every time a page becomes the active view */
   ionViewWillEnter() {
+
+    this.settingsService.loadSettings().then(value => {
+      this.currentSettings = value;
+    });
+
     // load players list
     this.refreshPlayerList();
   }
 
   /** Get the list of players from the storage  */
-  refreshPlayerList(): void {    
-    let fieldPlayers: number;
+  refreshPlayerList(): void {
 
-    // get gameobject to determine the minimum number of players
-    this.storage.get("game").then((value) => {
-      fieldPlayers = value.fieldPlayers; // number of players on the field
-    });
+    this.teamService.loadTeam().then(value => {
+      this.players = value.players;
 
-    // get all players
-    this.storage.get("players").then((value) => {
-
-     this.players = value;
-      console.log("Players", this.players);
-
-      // check if there are enough players to start 
+      // check if there are enough players attending
       let availablePlayers: number = this.players.filter(player => player.isPresent).length;
-      if (availablePlayers < fieldPlayers) {
-        // Warn when play can not start         
+      this.allowNextScreen = (this.currentSettings.fieldPlayers <= availablePlayers)
+
+      console.log("Available players", this.currentSettings.fieldPlayers > availablePlayers, this.currentSettings.fieldPlayers, availablePlayers)
+
+      if (!this.allowNextScreen) {
         let toast = this.toastCtrl.create({
-          message: 'Er zijn te weinig spelers om te starten.',
+          message: 'Er zijn te weinig spelers om te spelen.',
           duration: 3000,
           position: 'top'
         });
         toast.present();
-      }      
+      }
+
     });
   }
 
-  /** Mark player present */
-  onSelect(player: Player): void {
-    console.log("Player", player);
-    var index = this.players.indexOf(player); // get the index of the item to be deleted 
-    player.isPresent = !player.isPresent; // toggle
+  /** Toggle player attendance */
+  onTogglePlayerAttendance(player: Player): void {
 
-    this.players[index] = player;
-    
-    this.storage.set("players", this.players).then(
-      () => this.refreshPlayerList(),
-      () => console.log("Task Errored!") 
-    );
+    this.teamService.togglePlayerAttendance(player).then(() => {
+      this.refreshPlayerList();
+    });
   }
 
   /** Go to the next page */

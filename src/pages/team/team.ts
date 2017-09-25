@@ -1,4 +1,5 @@
-import { Player } from './../../app/shared/player.model';
+import { TeamService } from './../../app/shared/services/team.service';
+import { Player } from './../../app/shared/models/player.model';
 import { Component } from '@angular/core';
 import { NavController, NavParams } from 'ionic-angular';
 import { Storage } from '@ionic/storage';
@@ -14,17 +15,23 @@ export class TeamPage {
     private selectedItem: any;
     private players: Player[] = []; // array with players
 
-    constructor(public navCtrl: NavController, public navParams: NavParams, private storage: Storage, private alertCtrl: AlertController) {
-        
+    constructor(public navCtrl: NavController, public navParams: NavParams, private alertCtrl: AlertController,
+        private teamService: TeamService) {
+
         this.selectedItem = navParams.get('item');
+
         // load players list
         this.refreshPlayerList();
     }
 
-    /**Get the list of players from the storage  */
+    /**
+     * Get the list of players from the storage
+     * 
+     * @memberof TeamPage
+     */
     refreshPlayerList(): void {
-        this.storage.get("players").then((value) => {
-            this.players = value;
+        this.teamService.loadTeam().then(value => {
+            this.players = value.players;
         });
     }
 
@@ -40,24 +47,12 @@ export class TeamPage {
                 {
                     text: 'Ja',
                     handler: () => {
-                        var index = this.players.indexOf(player); // get the index of the item to be deleted 
-                        this.players.splice(index, 1); // remove from array;
-                        this.storage.set("players", this.players).then(
-                            () => this.refreshPlayerList(),
-                            () => console.log("Task Errored!")
-                        );
+                        this.teamService.deletePlayer(player).then(() => this.refreshPlayerList());
                     }
                 }
             ]
         });
         confirm.present(); // show dialog
-    }
-
-    itemTapped(event, item) {
-        // That's right, we're pushing to ourselves!
-        this.navCtrl.push(TeamPage, {
-            item: item
-        });
     }
 
     /* show prompt for player name when adding a new player */
@@ -80,40 +75,22 @@ export class TeamPage {
                 {
                     text: 'Bewaar',
                     handler: data => {
-                        this.players.push(new Player(data.name));
-                        this.storage.set("players", this.players).then(
+                        this.teamService.addPlayer(new Player(data.name)).then(
                             () => this.refreshPlayerList(),
                             () => console.log("Task Errored!")
                         );
                     }
                 }
             ]
-        });       
+        });
         alert.present();
     }
 
-    doConfirmDeleteTeam(): void {
-        let alert = this.alertCtrl.create({
-            title: 'Hele team verwijderen?',
-            message: 'Weet je zeker dat je het hele team IN EEN KEER wilt verwijderen?',
-            buttons: [
-                {
-                    text: 'Ja',
-                    handler: data => {
-                        this.storage.remove("players").then(
-                            () => this.refreshPlayerList(),
-                            () => console.log("Task Errored!")
-                        );
-                    }
-                },
-                {
-                    text: 'Nee, natuurlijk niet!',
-                    handler: () => {
-
-                    }
-                }
-            ]
-        });        
-        alert.present();
+    itemTapped(event, item) {
+        // That's right, we're pushing to ourselves!
+        this.navCtrl.push(TeamPage, {
+            item: item
+        });
     }
+
 }

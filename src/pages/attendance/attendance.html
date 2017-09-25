@@ -12,14 +12,14 @@
   <ion-list>
     <ion-list-header>Wie spelen er mee?</ion-list-header>
     <ion-item *ngFor="let player of players">
-      <ion-toggle (click)="onSelect(player)" [(checked)]="player.isPresent"></ion-toggle>
+      <ion-toggle (click)="onTogglePlayerAttendance(player)" [(checked)]="player.isPresent"></ion-toggle>
       <ion-label>
         {{ player.name }}
       </ion-label>
     </ion-item>
-    <div padding>
+    <div padding *ngIf="allowNextScreen">
       <button ion-button (click)="goToFormation()" icon-end float-right>Basisopstelling <ion-icon name="arrow-forward"></ion-icon></button>
     </div>
   </ion-list>
-  
+
 </ion-content>

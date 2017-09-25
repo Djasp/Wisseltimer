@@ -1,9 +1,9 @@
-import { Settings } from './../../app/shared/settings.model';
-import { SettingsService } from './../../app/shared/settings.service';
+import { Settings } from './../../app/shared/models/settings.model';
+import { SettingsService } from './../../app/shared/services/settings.service';
 import { Substitute } from './../../app/shared/substitute.model';
 import { AttendancePage } from './../attendance/attendance';
-import { Player } from './../../app/shared/player.model';
-import { Game } from './../../app/shared/game.model';
+import { Player } from './../../app/shared/models/player.model';
+import { Game } from './../../app/shared/models/game.model';
 import { Component } from '@angular/core';
 import { NavController, NavParams, AlertController } from 'ionic-angular';
 import { Storage } from '@ionic/storage';

@@ -1,10 +1,10 @@
-import { Settings } from './settings.model';
+import { Settings } from './../models/settings.model';
 import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage';
 
 @Injectable()
 export class SettingsService {
-    settings: Settings = new Settings();
+    private currentSettings: Settings = new Settings();
     constructor(private storage: Storage) {
     }
 
@@ -21,10 +21,10 @@ export class SettingsService {
             this.storage.get("settings")
                 .then(value => {
                     if (value != null) {
-                        this.settings = new Settings(value);
-                        console.log("Loaded settings", this.settings);
+                        this.currentSettings = new Settings(value);
+                        console.log("Loaded settings", this.currentSettings);
                     }
-                    resolve(this.settings);
+                    resolve(this.currentSettings);
                 });
         });
         return promise;

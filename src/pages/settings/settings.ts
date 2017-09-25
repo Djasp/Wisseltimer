@@ -1,9 +1,8 @@
 import { HomePage } from './../home/home';
-import { SettingsService } from './../../app/shared/settings.service';
-import { Settings } from './../../app/shared/settings.model';
+import { SettingsService } from './../../app/shared/services/settings.service';
+import { Settings } from './../../app/shared/models/settings.model';
 import { Component, OnInit } from '@angular/core';
 import { NavController, ToastController } from 'ionic-angular';
-import { Storage } from '@ionic/storage';
 import { Validators, FormBuilder, FormGroup, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { AlertController } from 'ionic-angular';
 
@@ -16,8 +15,7 @@ export class SettingsPage implements OnInit {
   selectedItem: any;
   settingsFormGroup: FormGroup;
 
-  constructor(public navCtrl: NavController, private storage: Storage,
-    private formbuilder: FormBuilder, private alertCtrl: AlertController, private settingsService: SettingsService,
+  constructor(public navCtrl: NavController, private formbuilder: FormBuilder, private alertCtrl: AlertController, private settingsService: SettingsService,
     public toastCtrl: ToastController) {
   }
 
@@ -95,7 +93,7 @@ export class SettingsPage implements OnInit {
     toast.present();
 
     toast.onDidDismiss(() => {
-      this.navCtrl.setRoot(HomePage); // redirect to homepage after alert dismisses
+      //  this.navCtrl.setRoot(HomePage); // redirect to homepage after alert dismisses
     });
   }
   itemTapped(event, item) {

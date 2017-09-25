@@ -1,9 +1,12 @@
+import { GameService } from './shared/services/game.service';
+import { FormationService } from './shared/services/formation.service';
+import { TeamService } from './shared/services/team.service';
 import { SortByPipe } from './shared/pipes/sortby.pipe';
 import { AboutPage } from './../pages/about/about';
-import { SettingsService } from './shared/settings.service';
+import { SettingsService } from './shared/services/settings.service';
 import { SimpleTimer } from './simple-timer';
-import { FixedPage } from './../pages/fixed/fixed';
-import { FormationPage } from './../pages/formation/formation';
+import { FixedPage } from './../pages/attendance/fixed';
+import { FormationPage } from './../pages/attendance/formation';
 import { SettingsPage } from './../pages/settings/settings';
 import { TeamPage } from './../pages/team/team';
 import { AttendancePage } from './../pages/attendance/attendance';
@@ -34,7 +37,9 @@ import { SplashScreen } from '@ionic-native/splash-screen';
   ],
   imports: [
     BrowserModule,
-    IonicModule.forRoot(Wisseltimer),
+    IonicModule.forRoot(Wisseltimer, {
+      backButtonText: 'Terug'
+    }),
     IonicStorageModule.forRoot()
   ],
   bootstrap: [IonicApp],
@@ -53,6 +58,9 @@ import { SplashScreen } from '@ionic-native/splash-screen';
     SplashScreen,
     SimpleTimer,
     SettingsService,
+    TeamService,
+    FormationService,
+    GameService,
     { provide: ErrorHandler, useClass: IonicErrorHandler }
   ]
 })

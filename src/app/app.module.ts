@@ -1,3 +1,4 @@
+import { SettingsService } from './shared/settings.service';
 import { SimpleTimer } from './simple-timer';
 import { FixedPage } from './../pages/fixed/fixed';
 import { FormationPage } from './../pages/formation/formation';
@@ -48,12 +49,13 @@ import { SplashScreen } from '@ionic-native/splash-screen';
     StatusBar,
     SplashScreen,
     SimpleTimer,
-    {provide: ErrorHandler, useClass: IonicErrorHandler}
+    SettingsService,
+    { provide: ErrorHandler, useClass: IonicErrorHandler }
   ]
 })
 export class AppModule {
 
   constructor() {
-    console.log( "AppModule constructor." );
+    console.log("AppModule constructor.");
   }
 }

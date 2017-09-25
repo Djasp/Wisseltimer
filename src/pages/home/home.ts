@@ -1,3 +1,5 @@
+import { Settings } from './../../app/shared/settings.model';
+import { SettingsService } from './../../app/shared/settings.service';
 import { Substitute } from './../../app/shared/substitute.model';
 import { AttendancePage } from './../attendance/attendance';
 import { Player } from './../../app/shared/player.model';
@@ -36,16 +38,25 @@ export class HomePage {
   private gamePaused: boolean = false;
   private timerSubscription: Subscription;
   private currentIndex: number = 0;
+  private whatWePlay: string = "helft";
+  private settings: Settings;
 
   // private actualFormationDoneTime: moment.Moment = null;
 
   constructor(public navCtrl: NavController, public navParams: NavParams, private storage: Storage,
-    public toastCtrl: ToastController, private alertCtrl: AlertController) {
+    public toastCtrl: ToastController, private alertCtrl: AlertController, private settingsService: SettingsService) {
     this.selectedItem = navParams.get('item');
   }
 
   /**  fires every time a page becomes the active view */
   ionViewWillEnter() {
+
+    // load the settings as a promise from the storage
+    this.settingsService.loadSettings().then(settings => {
+
+      console.log("Promised settings", settings)
+      this.settings = new Settings(settings);
+    });
 
     // check for settings, initialize default values when not present
     this.storage.get("game").then((value) => {
@@ -60,7 +71,7 @@ export class HomePage {
         this.game = value;
 
         // assign local variables
-        this.fieldPlayers = this.game.fieldPlayers; // number of players 
+        this.fieldPlayers = this.settings.fieldPlayers; // number of players 
         this.gameStarted = this.game.gameStarted;
         this.gamePaused = this.game.gamePaused;
         if (this.game.gameTime != null) {
@@ -85,9 +96,10 @@ export class HomePage {
             this.formationDone = this.game.formationDone
           }
         }
-        this.totalTimeInMinutes = this.game.minutesPerHalf; // time that is played
-        if (this.game.fullGame) {
-          this.totalTimeInMinutes = this.game.minutesPerHalf * 2;
+        this.totalTimeInMinutes = this.settings.minutesPerHalf; // time that is played
+        if (this.settings.fullGame) {
+          this.totalTimeInMinutes = this.settings.minutesPerHalf * 2;
+          this.whatWePlay = "wedstrijd";
         }
       }
       console.log("Game", value);
@@ -150,7 +162,7 @@ export class HomePage {
     console.log("Creating matrix", this.availablePlayers, this.nonSubstitutablePlayers, players);
 
     let n: number = players.length; // 8
-    let p: number = this.game.fieldPlayers; // 6
+    let p: number = this.settings.fieldPlayers; // 6
     let idx: number = 0;
     let counter: number = 0;
     const secondsPerPlayer: number = (this.totalTimeInMinutes * 60) / n;
@@ -423,7 +435,7 @@ export class HomePage {
   }
 
   /**
-   * Get all players that are not on the field for a given matrix column.
+   * 
    * @private
    * @param {number} col 
    * @returns {Substitute[]} 
@@ -433,7 +445,7 @@ export class HomePage {
     let substitutes: Substitute[] = [];
     let current: string[] = this.getPlayerNamesFromMatrix(col); // get all players now on pitch  
 
-    let p: number = this.game.fieldPlayers; // 6 
+    let p: number = this.settings.fieldPlayers; // 6 
     p = p - this.nonSubstitutablePlayers.length;
 
     if (col > 0) {
@@ -442,18 +454,25 @@ export class HomePage {
       for (let i: number = 0; i < p; i++) {
         if (current[i] != previous[i]) {
           //TODO: Store time here
-          substitutes.push(new Substitute(current[i], previous[i]));
+          substitutes.push(new Substitute(current[i], previous[i], this.timeBlocks[i]));
         }
       }
     }
     return substitutes;
   }
 
+  /**
+   * Get all players that are not on the field for a given matrix column.
+   * @private
+   * @param {number} col 
+   * @returns {string[]} 
+   * @memberof HomePage
+   */
   private getBench(col: number): string[] {
     let bench: string[] = [];
     let current: string[] = this.getPlayerNamesFromMatrix(col); // get all players now on pitch  
 
-    let p: number = this.game.fieldPlayers; // 6 
+    let p: number = this.settings.fieldPlayers; // 6 
     p = p - this.nonSubstitutablePlayers.length;
 
     this.availablePlayers.forEach(player => {
@@ -464,3 +483,4 @@ export class HomePage {
 
     return bench;
   }
+}

@@ -9,29 +9,33 @@
   </ion-navbar>
 </ion-header>
 <ion-content>
-    <form [formGroup]="settingsForm">
-      <ion-list>
-        <ion-item>
-          <ion-label stacked>Minuten per helft</ion-label>
-          <ion-input type="number" formControlName="minutesPerHalf" step="1"></ion-input>
-        </ion-item>
-        <ion-item>
-          <ion-label stacked>Aantal spelers op het veld (inclusief keeper)</ion-label>
-          <ion-input type="number" formControlName="fieldPlayers" step="1"></ion-input>
-        </ion-item>
-      </ion-list>
-      <ion-list radio-group formControlName="fullGame">
-        <ion-list-header>
-          Alle wissels doorvoeren per
-        </ion-list-header>
-        <ion-item>
-          <ion-label>Helft</ion-label>
-          <ion-radio value="false"></ion-radio>
-        </ion-item>
-        <ion-item>
-          <ion-label>Wedstrijd</ion-label>
-          <ion-radio value="true"></ion-radio>
-        </ion-item>
-      </ion-list>
-    </form>
+  <form [formGroup]="settingsFormGroup" (ngSubmit)="saveForm()" novalidate>
+    <ion-list>
+      <ion-item>
+        <ion-label stacked>Minuten per helft</ion-label>
+        <ion-input type="number" formControlName="minutesPerHalf" step="1" required></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label stacked>Aantal spelers op het veld (inclusief keeper)</ion-label>
+        <ion-input type="number" formControlName="fieldPlayers" step="1" required></ion-input>
+      </ion-item>
+    </ion-list>
+    <ion-list radio-group formControlName="fullGame">
+      <ion-list-header>
+        Alle wissels doorvoeren per
+      </ion-list-header>
+      <ion-item>
+        <ion-label>Helft</ion-label>
+        <ion-radio value="false"></ion-radio>
+      </ion-item>
+      <ion-item>
+        <ion-label>Wedstrijd</ion-label>
+        <ion-radio value="true"></ion-radio>
+      </ion-item>
+    </ion-list>
+    <div padding>
+      <button ion-button type="submit" icon-start float-right color="secondary"><ion-icon name="save"></ion-icon> Bewaar</button>
+    </div>
+  </form>
+
 </ion-content>

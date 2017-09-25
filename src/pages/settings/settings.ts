@@ -1,62 +1,71 @@
-import { Game } from './../../app/shared/game.model';
-import { Component } from '@angular/core';
-import { NavController } from 'ionic-angular';
+import { HomePage } from './../home/home';
+import { SettingsService } from './../../app/shared/settings.service';
+import { Settings } from './../../app/shared/settings.model';
+import { Component, OnInit } from '@angular/core';
+import { NavController, ToastController } from 'ionic-angular';
 import { Storage } from '@ionic/storage';
-import { Validators, FormBuilder, FormGroup } from '@angular/forms';
+import { Validators, FormBuilder, FormGroup, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { AlertController } from 'ionic-angular';
 
 @Component({
   selector: 'page-settings',
   templateUrl: 'settings.html'
 })
-  
-export class SettingsPage {
-  private settingsForm: FormGroup;
-  private alertIsVisible; // flag is alert is already visible
 
-  constructor(public navCtrl: NavController, private storage: Storage, private formbuilder: FormBuilder, private alertCtrl: AlertController) {
-    
-    // initialize form 
-    this.settingsForm = this.formbuilder.group({
-      minutesPerHalf: ['20', Validators.required],
-      fieldPlayers: ['5', Validators.required],
-      fullGame: [0, Validators.required]
-    });
-    this.alertIsVisible = false;
+export class SettingsPage implements OnInit {
+  selectedItem: any;
+  settingsFormGroup: FormGroup;
 
-    // subscribe to settings form changes 
-    this.settingsForm.valueChanges.subscribe(data => {
-
-      // TODO: Prevent user from continuing when the form is invalid. 
-      if (!this.settingsForm.valid && this.alertIsVisible == false) {
-        this.presentAlert();
-      }
-
-      // get the game object from the storage
-      this.storage.get("game").then((value) => {
-        let game = new Game(value); // create new game object
-        game.minutesPerHalf = parseFloat(data.minutesPerHalf); //TODO: Make minutes ints
-        game.fieldPlayers = parseInt(data.fieldPlayers);
-        game.fullGame = (data.fullGame == 'true'); // parse as boolean
-
-        // save the game object to the storage
-        storage.set("game", game);
-      });
-    })
-
-    // get game object from storage 
-    this.storage.get("game").then((value) => {
-      let game = new Game(value); // create new game object
-      // assign values from storage to the form 
-      this.settingsForm.controls['minutesPerHalf'].setValue(game.minutesPerHalf);
-      this.settingsForm.controls['fieldPlayers'].setValue(game.fieldPlayers);
-      this.settingsForm.controls['fullGame'].setValue(game.fullGame);
-    });
-
-  
+  constructor(public navCtrl: NavController, private storage: Storage,
+    private formbuilder: FormBuilder, private alertCtrl: AlertController, private settingsService: SettingsService,
+    public toastCtrl: ToastController) {
   }
 
-  /** Show alert when settings form is invalid */
+  ngOnInit() {
+    //initialize the form 
+    this.settingsFormGroup = new FormGroup({
+      minutesPerHalf: new FormControl("", Validators.required),
+      fieldPlayers: new FormControl("", Validators.required),
+      fullGame: new FormControl("0", Validators.required)
+    });
+  }
+
+  ionViewWillEnter() {
+    // load the settings as a promise from the storage
+    // and apply the values to the form
+    this.settingsService.loadSettings().then(settings => {
+      console.log("Promised settings", settings)
+
+      this.settingsFormGroup.setValue({
+        minutesPerHalf: settings.minutesPerHalf,
+        fieldPlayers: settings.fieldPlayers,
+        fullGame: settings.fullGame
+      });
+    });
+  }
+
+  /**
+   * Saves the form to storage 
+   * 
+   * @memberof SettingsPage
+   */
+  saveForm() {
+
+    let settings = new Settings(); // create new settings object
+    settings.minutesPerHalf = parseFloat(this.settingsFormGroup.value.minutesPerHalf); //TODO: Make minutes ints
+    settings.fieldPlayers = parseInt(this.settingsFormGroup.value.fieldPlayers);
+    settings.fullGame = (this.settingsFormGroup.value.fullGame == 'true'); // parse as boolean
+
+    this.settingsService.saveSettings(settings).then(() => {
+      this.presentOk()
+    });
+  }
+
+  /**
+   * Show alert when settings form is invalid 
+   * 
+   * @memberof SettingsPage
+   */
   presentAlert(): void {
     let alert = this.alertCtrl.create({
       title: 'Niet ingevuld',
@@ -66,11 +75,33 @@ export class SettingsPage {
         role: 'cancel',
         handler: () => {
           console.log('Cancel clicked');
-          this.alertIsVisible = false;
         }
       }]
     });
-    this.alertIsVisible = true;
     alert.present();
   }
-}  
+
+  /**
+   * Show alert when settings are saved and redirect to homepage
+   * 
+   * @memberof SettingsPage
+   */
+  presentOk() {
+    let toast = this.toastCtrl.create({
+      message: 'Opgeslagen',
+      duration: 3000,
+      position: 'top'
+    });
+    toast.present();
+
+    toast.onDidDismiss(() => {
+      this.navCtrl.setRoot(HomePage); // redirect to homepage after alert dismisses
+    });
+  }
+  itemTapped(event, item) {
+    // That's right, we're pushing to ourselves!
+    this.navCtrl.push(SettingsPage, {
+      item: item
+    });
+  }
+} 

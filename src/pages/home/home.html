@@ -4,7 +4,7 @@
       <ion-icon name="menu"></ion-icon>
     </button>
     <ion-title>
-      Wedstrijd
+      {{whatWePlay}}
     </ion-title>
   </ion-navbar>
 </ion-header>
@@ -14,44 +14,37 @@
       </button>
   <div *ngIf="formationDone">
     <div class="wt-timer" text-center *ngIf="gameTime != null">{{gameTime.format("mm:ss")}}</div>
-    <button ion-button color="secondary" full icon-left round (click)="startGame()" *ngIf="!gameStarted || gamePaused"><ion-icon name="play"></ion-icon> Start wedstrijd</button>
-    <button ion-button color="light" full icon-left round (click)="pauseGame()" *ngIf="gameStarted && gamePaused== false"><ion-icon name="pause"></ion-icon> Pauzeer wedstrijd</button>
-    <button ion-button color="danger" full icon-left round (click)="stopGame()" *ngIf="gameStarted && gamePaused"><ion-icon name="square"></ion-icon> Beëindig wedstrijd</button>
-
-
+    <button ion-button color="secondary" full icon-left round (click)="startGame()" *ngIf="!gameStarted || gamePaused"><ion-icon name="play"></ion-icon> Start {{whatWePlay}}</button>
+    <button ion-button color="light" full icon-left round (click)="pauseGame()" *ngIf="gameStarted && gamePaused== false"><ion-icon name="pause"></ion-icon> Pauzeer {{whatWePlay}}</button>
+    <button ion-button color="danger" full icon-left round (click)="stopGame()" *ngIf="gameStarted && gamePaused"><ion-icon name="square"></ion-icon> Beëindig {{whatWePlay}}</button>
     <ion-list>
       <ion-item-divider color="light">Veld</ion-item-divider>
       <ion-item *ngFor="let player of getCurrentPitch()">
-
         <ion-icon *ngIf="player.doNotSubstitute" name="infinite"></ion-icon>
         <ion-icon *ngIf="!player.doNotSubstitute" name="football"></ion-icon>
-
         {{player.name}}
-
       </ion-item>
-
     </ion-list>
-    <ion-item-divider color="light">Bank</ion-item-divider>
-    <div *ngFor="let player of getBench(currentIndex)">
-      <ion-item>
-        {{player}}
-      </ion-item>
-    </div>
-    <ion-item-divider color="light">Wissels</ion-item-divider *ngIf=" getSubstitutes(currentIndex).length > 0">
-
-    <div *ngFor="let player of getSubstitutes(currentIndex)">
-      <ion-item *ngIf="player.inName !=''">
-        <ion-icon name="arrow-up" color="secondary"></ion-icon>
-        {{player.inName}}
-      </ion-item>
-      <ion-item *ngIf="player.outName !=''">
-        <ion-icon name="arrow-down" color="danger"></ion-icon>
-        {{player.outName}}
-      </ion-item>
-
-    </div>
-
-
+    <ion-list *ngIf="getBench(currentIndex).length > 0">
+      <ion-item-divider color="light">Bank</ion-item-divider>
+      <div *ngFor="let player of getBench(currentIndex)">
+        <ion-item>
+          {{player}}
+        </ion-item>
+      </div>
+    </ion-list>
+    <ion-list *ngIf="getSubstitutes(currentIndex).length > 0">
+      <ion-item-divider color="light">Wissels</ion-item-divider>
+      <div *ngFor="let player of getSubstitutes(currentIndex)">
+        <ion-item *ngIf="player.inName !=''">
+          <ion-icon name="arrow-up" color="secondary"></ion-icon>
+          {{player.inName}}
+        </ion-item>
+        <ion-item *ngIf="player.outName !=''">
+          <ion-icon name="arrow-down" color="danger"></ion-icon>
+          {{player.outName}}
+        </ion-item>
+      </div>
+    </ion-list>
   </div>
-
 </ion-content>

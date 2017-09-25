@@ -14,7 +14,7 @@ export class FormationPage {
     selectedItem: any;
     private allowNextScreen: boolean = false;
 
-    constructor(public navCtrl: NavController, public navParams: NavParams, private storage: Storage,public toastCtrl: ToastController) {
+    constructor(public navCtrl: NavController, public navParams: NavParams, private storage: Storage, public toastCtrl: ToastController) {
         this.selectedItem = navParams.get('item');
     }
 
@@ -37,8 +37,7 @@ export class FormationPage {
             // filter the present players
             this.players = value.filter(player => player.isPresent);
             startingPlayers = this.players.filter(player => player.isPresent && player.inStartingFormation).length;
-            
-         
+
             this.allowNextScreen = (startingPlayers == fieldPlayers);
 
             console.log("allow", this.allowNextScreen);

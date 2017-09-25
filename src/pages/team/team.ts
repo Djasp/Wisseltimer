@@ -2,8 +2,6 @@ import { TeamService } from './../../app/shared/services/team.service';
 import { Player } from './../../app/shared/models/player.model';
 import { Component } from '@angular/core';
 import { NavController, NavParams } from 'ionic-angular';
-import { Storage } from '@ionic/storage';
-import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 import { AlertController } from 'ionic-angular';
 
 @Component({

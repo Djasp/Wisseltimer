@@ -1,3 +1,5 @@
+import { SortByPipe } from './shared/pipes/sortby.pipe';
+import { AboutPage } from './../pages/about/about';
 import { SettingsService } from './shared/settings.service';
 import { SimpleTimer } from './simple-timer';
 import { FixedPage } from './../pages/fixed/fixed';
@@ -14,7 +16,6 @@ import { IonicStorageModule } from '@ionic/storage';
 import { Wisseltimer } from './app.component';
 import { HomePage } from '../pages/home/home';
 
-import { SortByPipe } from './sortby.pipe';
 
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
@@ -28,7 +29,8 @@ import { SplashScreen } from '@ionic-native/splash-screen';
     SettingsPage,
     FormationPage,
     FixedPage,
-    SortByPipe
+    SortByPipe,
+    AboutPage
   ],
   imports: [
     BrowserModule,
@@ -43,7 +45,8 @@ import { SplashScreen } from '@ionic-native/splash-screen';
     TeamPage,
     SettingsPage,
     FormationPage,
-    FixedPage
+    FixedPage,
+    AboutPage
   ],
   providers: [
     StatusBar,

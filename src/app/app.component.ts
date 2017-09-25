@@ -1,4 +1,4 @@
-
+import { AboutPage } from './../pages/about/about';
 import { TeamPage } from './../pages/team/team';
 import { SettingsPage } from './../pages/settings/settings';
 import { AttendancePage } from './../pages/attendance/attendance';
@@ -11,7 +11,7 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 @Component({
   templateUrl: 'app.html'
 })
-  
+
 export class Wisseltimer {
   @ViewChild(Nav) nav: Nav;
 
@@ -24,7 +24,8 @@ export class Wisseltimer {
       { title: 'Home', component: HomePage },
       { title: 'Opstelling', component: AttendancePage },
       { title: 'Team', component: TeamPage },
-      { title: 'Instellingen', component: SettingsPage }
+      { title: 'Instellingen', component: SettingsPage },
+      { title: 'Over deze app', component: AboutPage }
     ];
   }
 

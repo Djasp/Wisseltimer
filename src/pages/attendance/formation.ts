@@ -50,13 +50,26 @@ export class FormationPage {
             let startingPlayers: number = this.availablePlayers.filter(player => player.inStartingFormation).length;
             this.allowNextScreen = (this.currentSettings.fieldPlayers <= startingPlayers)
 
-            if (!this.allowNextScreen) {
+            if (this.currentSettings.fieldPlayers > startingPlayers) {
+                this.allowNextScreen = false;
+
                 let toast = this.toastCtrl.create({
                     message: 'Er staan te weinig spelers in de basis.',
-                    duration: 3000,
+                    duration: 2000,
                     position: 'top'
                 });
                 toast.present();
+            } else if (this.currentSettings.fieldPlayers < startingPlayers) {
+                this.allowNextScreen = false;
+
+                let toast = this.toastCtrl.create({
+                    message: 'Er staan te veel spelers in de basis.',
+                    duration: 2000,
+                    position: 'top'
+                });
+                toast.present();
+            } else {
+                this.allowNextScreen = true;
             }
 
         });

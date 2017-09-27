@@ -197,4 +197,64 @@ export class TeamService {
         });
         return promise;
     }
+
+    public getPresentPlayers(): Promise<Player[]> {
+        let promise = new Promise<Player[]>((resolve, reject) => {
+            console.log("Get present players");
+            this.loadTeam().then(value => {
+                if (value !== null) {
+                    this.currentTeam = value;
+                    resolve(value.players.filter(player => player.isPresent));
+                } else {
+                    reject();
+                }
+            });
+        });
+        return promise;
+    }
+
+    public getSubstitutablePlayers(): Promise<Player[]> {
+        let promise = new Promise<Player[]>((resolve, reject) => {
+            console.log("Get subtitutable players");
+            this.loadTeam().then(value => {
+                if (value !== null) {
+                    this.currentTeam = value;
+                    resolve(value.players.filter(player => player.isPresent && !player.doNotSubstitute));
+                } else {
+                    reject();
+                }
+            });
+        });
+        return promise;
+    }
+
+    public getNotSubstitutablePlayers(): Promise<Player[]> {
+        let promise = new Promise<Player[]>((resolve, reject) => {
+            console.log("Get not-subtitutable players");
+            this.loadTeam().then(value => {
+                if (value !== null) {
+                    this.currentTeam = value;
+                    resolve(value.players.filter(player => player.isPresent && player.doNotSubstitute));
+                } else {
+                    reject();
+                }
+            });
+        });
+        return promise;
+    }
+
+    public getStartingLineup(): Promise<Player[]> {
+        let promise = new Promise<Player[]>((resolve, reject) => {
+            console.log("Get starting lineup");
+            this.loadTeam().then(value => {
+                if (value !== null) {
+                    this.currentTeam = value;
+                    resolve(value.players.filter(player => player.isPresent && player.inStartingFormation));
+                } else {
+                    reject();
+                }
+            });
+        });
+        return promise;
+    }
 }

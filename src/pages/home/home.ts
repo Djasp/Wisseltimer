@@ -1,3 +1,4 @@
+import { Matrix } from './../../app/shared/models/matrix.model';
 import { Team } from './../../app/shared/models/team.model';
 import { GameService } from './../../app/shared/services/game.service';
 import { TeamService } from './../../app/shared/services/team.service';
@@ -40,12 +41,12 @@ export class HomePage {
   // private saveCounter: number = 0;
   // private gamePaused: boolean = false;
   // private timerSubscription: Subscription;
-  // private currentIndex: number = 0;
+  private currentIndex: number = 0;
   // private whatWePlay: string = "helft";
-  private currentSettings: Settings;
-  public currentGame: Game;
-  private currentTeam: Team;
-
+  // private currentSettings: Settings;
+  // public currentGame: Game;
+  // private currentTeam: Team;
+  private currentMatrix: Matrix;
   // // private actualFormationDoneTime: moment.Moment = null;
 
 
@@ -55,16 +56,46 @@ export class HomePage {
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
     public toastCtrl: ToastController, private alertCtrl: AlertController,
-    private settingsService: SettingsService,
-    private teamService: TeamService,
-    private gameService: GameService) {
 
+    private gameService: GameService) {
     this.selectedItem = navParams.get('item');
+
+
+
   }
 
-  /**  fires every time a page becomes the active view */
-  ionViewWillEnter() {
 
+
+  /**  fires every time a page becomes the active view */
+  ionViewDidEnter() {
+    // load the game 
+    this.gameService.loadGame().then(value => {
+      this.formationDone = value.formationDone;
+    });
+
+    // load the matrix
+    this.gameService.getMatrix().then(value => {
+      console.log("matrix loaded");
+      this.currentMatrix = value;
+    });
+
+
+
+
+    //     public getCurrentPitch(): string[] {
+    //     let n: number = this.currentIndex;
+    //     this.getMatrix().then(value => this.matrix = value);
+
+    //     let playerNamesOnTheField: string[] = this.matrix.matrix.map(function (value, index) { return value[n]; });
+    //     let notSubstitablePlayers: Player[] = this.currentTeam.players.filter(p => p.isPresent && p.doNotSubstitute);
+
+    //     notSubstitablePlayers.forEach(element => {
+    //         playerNamesOnTheField.push(element.name);
+    //     });
+    //     console.log("Gameservice - getCurrentPitch", playerNamesOnTheField, n);
+
+    //     return playerNamesOnTheField;
+    // }
     // // load the settings 
     // this.settingsService.loadSettings().then(value => {
     //   this.currentSettings = new Settings(value);
@@ -75,13 +106,13 @@ export class HomePage {
     //   this.currentTeam = new Team(value);
     // });
 
-    // load the game 
-    this.gameService.loadGame().then(value => {
-      this.currentGame = new Game(value);
-      this.formationDone = value.formationDone;
 
 
-    });
+    // this.gameService.getMatrix().then(value => {
+    //   this.currentMatrix =
+    // });
+
+
 
 
 
@@ -181,6 +212,23 @@ export class HomePage {
     // });
   }
 
+
+  /**
+   * 
+   * 
+   * @returns {string[]} 
+   * @memberof HomePage
+   */
+  public getCurrentPitch(): string[] {
+    return this.gameService.getCurrentPitch(this.currentMatrix, this.currentIndex);
+  }
+
+
+  getCurrentBench(): string[] {
+    return this.gameService.getCurrentBench(this.currentMatrix, this.currentIndex);
+  }
+
+
   /**  Create multidimensional array that holds the matrix of players */
   // private createMatrix(): void {
   // // randomize player list
@@ -244,23 +292,23 @@ export class HomePage {
     // return column;
   }
 
-  getCurrentPitch(): Player[] {
+  // getCurrentPitch(): Player[] {
 
-    // let players: Player[] = [];
-    // let substitutes: Substitute[] = [];
-    // let playernames: string[] = this.getPlayerNamesFromMatrix(this.currentIndex);
+  //   // let players: Player[] = [];
+  //   // let substitutes: Substitute[] = [];
+  //   // let playernames: string[] = this.getPlayerNamesFromMatrix(this.currentIndex);
 
-    // playernames.forEach(player => {
-    //   players.push(new Player(player));
-    // });
-    // this.nonSubstitutablePlayers.forEach(player => {
-    //   players.push(player);
-    // });
+  //   // playernames.forEach(player => {
+  //   //   players.push(new Player(player));
+  //   // });
+  //   // this.nonSubstitutablePlayers.forEach(player => {
+  //   //   players.push(player);
+  //   // });
 
-    //return players;
+  //   //return players;
 
-    return null;
-  }
+  //   return null;
+  // }
 
   /** Go to the attendate page */
   goToAttendance() {

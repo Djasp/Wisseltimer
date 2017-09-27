@@ -17,22 +17,21 @@
     <button ion-button color="secondary" full icon-left round (click)="startGame()" *ngIf="!gameStarted || gamePaused"><ion-icon name="play"></ion-icon> Start {{whatWePlay}}</button>
     <button ion-button color="light" full icon-left round (click)="pauseGame()" *ngIf="gameStarted && gamePaused== false"><ion-icon name="pause"></ion-icon> Pauzeer {{whatWePlay}}</button>
     <button ion-button color="danger" full icon-left round (click)="stopGame()" *ngIf="gameStarted && gamePaused"><ion-icon name="square"></ion-icon> Beëindig {{whatWePlay}}</button>
-    <ion-list>
+    <ion-list margin>
       <ion-item-divider color="light">Veld</ion-item-divider>
-      <ion-item *ngFor="let player of getCurrentPitch()">
-        <ion-icon *ngIf="player.doNotSubstitute" name="infinite"></ion-icon>
-        <ion-icon *ngIf="!player.doNotSubstitute" name="football"></ion-icon>
-        {{player.name}}
+      <ion-item *ngFor="let playername of getCurrentPitch()">
+        {{playername}}
       </ion-item>
     </ion-list>
-    <ion-list *ngIf="getBench(currentIndex).length > 0">
+    <ion-list *ngIf="getCurrentBench().length > 0">
       <ion-item-divider color="light">Bank</ion-item-divider>
-      <div *ngFor="let player of getBench(currentIndex)">
+      <div *ngFor="let playername of getCurrentBench()">
         <ion-item>
-          {{player}}
+          {{playername}}
         </ion-item>
       </div>
     </ion-list>
+    <!--
     <ion-list *ngIf="getSubstitutes(currentIndex).length > 0">
       <ion-item-divider color="light">Wissels</ion-item-divider>
       <div *ngFor="let player of getSubstitutes(currentIndex)">
@@ -45,6 +44,6 @@
           {{player.outName}}
         </ion-item>
       </div>
-    </ion-list>
+    </ion-list> -->
   </div>
 </ion-content>

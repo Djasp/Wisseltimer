@@ -11,25 +11,27 @@ import { AlertController } from 'ionic-angular';
 
 export class TeamPage {
     private selectedItem: any;
-    private players: Player[] = []; // array with players
+    players: Player[]; // array with players
 
-    constructor(public navCtrl: NavController, public navParams: NavParams, private alertCtrl: AlertController,
-        private teamService: TeamService) {
+    constructor(public navCtrl: NavController, public navParams: NavParams, private alertCtrl: AlertController, private teamService: TeamService
+    ) {
 
         this.selectedItem = navParams.get('item');
+    }
 
+    ionViewWillEnter() {
         // load players list
         this.refreshPlayerList();
     }
-
     /**
      * Get the list of players from the storage
      * 
      * @memberof TeamPage
      */
     refreshPlayerList(): void {
-        this.teamService.loadTeam().then(value => {
-            this.players = value.players;
+
+        this.teamService.getAllPlayers().subscribe((data: Player[]) => {
+            this.players = data;
         });
     }
 
@@ -45,7 +47,8 @@ export class TeamPage {
                 {
                     text: 'Ja',
                     handler: () => {
-                        this.teamService.deletePlayer(player).then(() => this.refreshPlayerList());
+                        this.teamService.deletePlayer(player);
+                        // this.refreshPlayerList();
                     }
                 }
             ]
@@ -73,10 +76,8 @@ export class TeamPage {
                 {
                     text: 'Bewaar',
                     handler: data => {
-                        this.teamService.addPlayer(new Player(data.name)).then(
-                            () => this.refreshPlayerList(),
-                            () => console.log("Task Errored!")
-                        );
+                        this.teamService.addPlayer(new Player(data.name));
+                        // this.refreshPlayerList();
                     }
                 }
             ]

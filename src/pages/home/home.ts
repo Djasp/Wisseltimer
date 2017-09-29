@@ -1,3 +1,4 @@
+import { MatrixService } from './../../app/shared/services/matrix.service';
 import { Matrix } from './../../app/shared/models/matrix.model';
 import { Team } from './../../app/shared/models/team.model';
 import { GameService } from './../../app/shared/services/game.service';
@@ -13,8 +14,11 @@ import { NavController, NavParams, AlertController } from 'ionic-angular';
 import { Storage } from '@ionic/storage';
 import { ToastController } from 'ionic-angular';
 import { Subscription } from "rxjs";
+import { Observable } from 'rxjs/Observable';
 import { TimerObservable } from "rxjs/observable/TimerObservable";
 
+import 'rxjs/add/operator/map';
+import 'rxjs/add/observable/of';
 import moment from 'moment';
 
 @Component({
@@ -23,6 +27,7 @@ import moment from 'moment';
 })
 
 export class HomePage {
+  private DATE_MIN_VALUE: string = "1900-01-01 00:00:00";
   private selectedItem: any;
   // public game: Game;
   // private availablePlayers: Player[] = [];
@@ -36,197 +41,226 @@ export class HomePage {
   private formationDone: boolean = false;
   // private gameStarted: boolean = false;
   // private actualGameStartedTime: moment.Moment = null;
-  // private timer: any;
-  // private gameTime: moment.Moment = null;
-  // private saveCounter: number = 0;
+  private timer: Observable<number>;
+  private currentGameTime: moment.Moment = moment(this.DATE_MIN_VALUE);
+  private saveCounter: number = 0;
   // private gamePaused: boolean = false;
-  // private timerSubscription: Subscription;
+  private timerSubscription: Subscription;
   private currentIndex: number = 0;
   // private whatWePlay: string = "helft";
   // private currentSettings: Settings;
-  // public currentGame: Game;
+  private currentGame: Game;
   // private currentTeam: Team;
   private currentMatrix: Matrix;
   // // private actualFormationDoneTime: moment.Moment = null;
 
+  private currentPitch: string[] = [];
+  private currentBench: string[] = [];
 
-  // private currentTeam: Team;
+  private currentTeam: Team;
+  private allowStart: boolean = false;
+  private presentPlayers: Player[] = [];
+  private currentSettings: any;
   // private current
 
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
     public toastCtrl: ToastController, private alertCtrl: AlertController,
-
-    private gameService: GameService) {
+    private teamService: TeamService,
+    private gameService: GameService,
+    private settingsService: SettingsService,
+    private matrixService: MatrixService) {
     this.selectedItem = navParams.get('item');
-
-
-
   }
 
 
 
   /**  fires every time a page becomes the active view */
-  ionViewDidEnter() {
-    // load the game 
-    this.gameService.loadGame().then(value => {
-      this.formationDone = value.formationDone;
-    });
-
-    // load the matrix
-    this.gameService.getMatrix().then(value => {
-      console.log("matrix loaded");
-      this.currentMatrix = value;
-    });
-
-
-
-
-    //     public getCurrentPitch(): string[] {
-    //     let n: number = this.currentIndex;
-    //     this.getMatrix().then(value => this.matrix = value);
-
-    //     let playerNamesOnTheField: string[] = this.matrix.matrix.map(function (value, index) { return value[n]; });
-    //     let notSubstitablePlayers: Player[] = this.currentTeam.players.filter(p => p.isPresent && p.doNotSubstitute);
-
-    //     notSubstitablePlayers.forEach(element => {
-    //         playerNamesOnTheField.push(element.name);
-    //     });
-    //     console.log("Gameservice - getCurrentPitch", playerNamesOnTheField, n);
-
-    //     return playerNamesOnTheField;
-    // }
-    // // load the settings 
-    // this.settingsService.loadSettings().then(value => {
-    //   this.currentSettings = new Settings(value);
-    // });
-
-    // // load the team 
-    // this.teamService.loadTeam().then(value => {
-    //   this.currentTeam = new Team(value);
-    // });
-
-
-
-    // this.gameService.getMatrix().then(value => {
-    //   this.currentMatrix =
-    // });
-
-
-
-
-
-    // // check for settings, initialize default values when not present
-    // this.storage.get("game").then((value) => {
-
-    //   if (value == null) {
-    //     // create object with default values 
-    //     console.log("Default Game object created");
-    //     this.storage.set("game", new Game());
-
-    //   } else {
-    //     // get the game object 
-    //     this.game = value;
-
-    //     // assign local variables
-    //     this.fieldPlayers = this.settings.fieldPlayers; // number of players 
-    //     this.gameStarted = this.game.gameStarted;
-    //     this.gamePaused = this.game.gamePaused;
-    //     if (this.game.gameTime != null) {
-    //       this.gameTime = moment(this.game.gameTime);
-    //     }
-
-    //     if (this.gameStarted && this.timerSubscription == null) {
-    //       this.startTimer();
-    //     }
-
-    //     if (this.game.formationDone) {
-    //       // check if formation was done more than 50 minutes ago. If so, reset it. 
-    //       if (this.game.actualFormationDoneTime != null && moment(this.game.actualFormationDoneTime).isBefore(moment().subtract(60, 'minutes'))) {
-    //         this.formationDone = false;
-
-    //         // also store in gameobject
-    //         this.game.formationDone = false;
-    //         this.game.actualFormationDoneTime = null;
-    //         this.storage.set("game", this.game);
-
-    //       } else {
-    //         this.formationDone = this.game.formationDone
-    //       }
-    //     }
-    //     this.totalTimeInMinutes = this.settings.minutesPerHalf; // time that is played
-    //     if (this.settings.fullGame) {
-    //       this.totalTimeInMinutes = this.settings.minutesPerHalf * 2;
-    //       this.whatWePlay = "wedstrijd";
-    //     }
-    //   }
-    //   console.log("Game", value);
-    //});
-
-    // // get players
-    // this.storage.get("players").then((value) => {
-
-    //   console.log("Value", value);
-
-    //   if (value !== null) {
-    //     let tmp: Player[] = [];
-    //     tmp = value;
-
-    //     // filter the available players
-    //     this.availablePlayers = tmp.filter(player => player.isPresent && !player.doNotSubstitute);
-
-    //     // filter the non substitutable players 
-    //     this.nonSubstitutablePlayers = tmp.filter(player => player.isPresent && player.doNotSubstitute);
-
-    //   } else {
-    //     // now, for debugging, we add some fake players       
-    //     this.availablePlayers.push(new Player("Cas"));
-    //     this.availablePlayers.push(new Player("Daan"));
-    //     this.availablePlayers.push(new Player("Davi"));
-    //     this.availablePlayers.push(new Player("Luuk"));
-    //     this.availablePlayers.push(new Player("Nikey"));
-    //     this.availablePlayers.push(new Player("Mouhand"));
-    //     this.availablePlayers.push(new Player("Nikki"));
-    //     this.availablePlayers.push(new Player("Maes"));
-    //     this.availablePlayers.push(new Player("Seb"));
-
-    //     this.storage.set("players", this.availablePlayers); // save 
-    //   }
-    //   // calculate the number of players on the pitch. Must be equal or more than the number of field players      
-    //   this.totalPlayers = this.availablePlayers.length + this.nonSubstitutablePlayers.length;
-
-    //   if (this.totalPlayers >= this.fieldPlayers) {
-
-    //     console.log("wtf");
-    //     this.createMatrix();
-
-    //   } else {
-    //     // Warn when play can not start         
-    //     let toast = this.toastCtrl.create({
-    //       message: 'Er zijn te weinig spelers om te starten.',
-    //       duration: 3000,
-    //       position: 'top'
-    //     });
-    //     toast.present();
-    //   }
-    // });
+  ionViewWillEnter() {
+    this.updateRoster();
   }
 
+  // combine the different observables into one subscription
+  updateRoster(): void {
+    Observable.combineLatest(
+      this.gameService.loadGame(),
+      this.teamService.loadTeam(),
+      this.settingsService.loadSettings()
+    ).subscribe((data: any[]) => {
+      this.currentGame = data[0];
+      this.currentTeam = data[1];
+      this.currentSettings = data[2];
+
+      // set flags
+      this.formationDone = this.currentGame.formationDone;
+      this.allowStart = (this.currentTeam.players != undefined && this.currentTeam.players.length > 0);
+      this.presentPlayers = this.currentTeam.players.filter(p => p.isPresent);
+
+      // get or create matrix
+      if (this.formationDone) {
+
+        this.matrixService.loadMatrix(
+          this.presentPlayers,
+          this.currentSettings.fieldPlayers,
+          this.currentSettings.minutesPerHalf
+        ).subscribe((data: Matrix) => {
+          // get matrix 
+          this.currentMatrix = data;
+
+          // get the players that are currently supposed to be on the field 
+          this.getCurrentPitch().subscribe((data) => {
+            this.currentPitch = data;
+          });
+
+          // get the players that are currently supposed to be on the bench
+          this.getCurrentPitch().subscribe((data) => {
+            this.currentPitch = data;
+          });
+        });
+      }
+    });
+  }
 
   /**
+   * Get the players that are now supposed to be on the field
    * 
-   * 
-   * @returns {string[]} 
+   * @returns {Observable<string[]>} 
    * @memberof HomePage
    */
-  public getCurrentPitch(): string[] {
-    return this.gameService.getCurrentPitch(this.currentMatrix, this.currentIndex);
+  public getCurrentPitch(): Observable<string[]> {
+    let n: number = this.currentIndex;
+
+    let playerNamesOnTheField: string[] = this.currentMatrix.matrix.map(function (value, index) { return value[n]; });
+    let notSubstitablePlayers: Player[] = this.currentTeam.players.filter(p => p.isPresent && p.doNotSubstitute);
+
+    notSubstitablePlayers.forEach(element => {
+      playerNamesOnTheField.push(element.name);
+    });
+    console.log("Gameservice - getCurrentPitch", playerNamesOnTheField, n);
+
+    return Observable.of(playerNamesOnTheField);
   }
 
 
-  getCurrentBench(): string[] {
-    return this.gameService.getCurrentBench(this.currentMatrix, this.currentIndex);
-  }
+  // // check for settings, initialize default values when not present
+  // this.storage.get("game").then((value) => {
+
+  //   if (value == null) {
+  //     // create object with default values 
+  //     console.log("Default Game object created");
+  //     this.storage.set("game", new Game());
+
+  //   } else {
+  //     // get the game object 
+  //     this.game = value;
+
+  //     // assign local variables
+  //     this.fieldPlayers = this.settings.fieldPlayers; // number of players 
+  //     this.gameStarted = this.game.gameStarted;
+  //     this.gamePaused = this.game.gamePaused;
+  //     if (this.game.gameTime != null) {
+  //       this.gameTime = moment(this.game.gameTime);
+  //     }
+
+  //     if (this.gameStarted && this.timerSubscription == null) {
+  //       this.startTimer();
+  //     }
+
+  //     if (this.game.formationDone) {
+  //       // check if formation was done more than 50 minutes ago. If so, reset it. 
+  //       if (this.game.actualFormationDoneTime != null && moment(this.game.actualFormationDoneTime).isBefore(moment().subtract(60, 'minutes'))) {
+  //         this.formationDone = false;
+
+  //         // also store in gameobject
+  //         this.game.formationDone = false;
+  //         this.game.actualFormationDoneTime = null;
+  //         this.storage.set("game", this.game);
+
+  //       } else {
+  //         this.formationDone = this.game.formationDone
+  //       }
+  //     }
+  //     this.totalTimeInMinutes = this.settings.minutesPerHalf; // time that is played
+  //     if (this.settings.fullGame) {
+  //       this.totalTimeInMinutes = this.settings.minutesPerHalf * 2;
+  //       this.whatWePlay = "wedstrijd";
+  //     }
+  //   }
+  //   console.log("Game", value);
+  //});
+
+  // // get players
+  // this.storage.get("players").then((value) => {
+
+  //   console.log("Value", value);
+
+  //   if (value !== null) {
+  //     let tmp: Player[] = [];
+  //     tmp = value;
+
+  //     // filter the available players
+  //     this.availablePlayers = tmp.filter(player => player.isPresent && !player.doNotSubstitute);
+
+  //     // filter the non substitutable players 
+  //     this.nonSubstitutablePlayers = tmp.filter(player => player.isPresent && player.doNotSubstitute);
+
+  //   } else {
+  //     // now, for debugging, we add some fake players       
+  //     this.availablePlayers.push(new Player("Cas"));
+  //     this.availablePlayers.push(new Player("Daan"));
+  //     this.availablePlayers.push(new Player("Davi"));
+  //     this.availablePlayers.push(new Player("Luuk"));
+  //     this.availablePlayers.push(new Player("Nikey"));
+  //     this.availablePlayers.push(new Player("Mouhand"));
+  //     this.availablePlayers.push(new Player("Nikki"));
+  //     this.availablePlayers.push(new Player("Maes"));
+  //     this.availablePlayers.push(new Player("Seb"));
+
+  //     this.storage.set("players", this.availablePlayers); // save 
+  //   }
+  //   // calculate the number of players on the pitch. Must be equal or more than the number of field players      
+  //   this.totalPlayers = this.availablePlayers.length + this.nonSubstitutablePlayers.length;
+
+  //   if (this.totalPlayers >= this.fieldPlayers) {
+
+  //     console.log("wtf");
+  //     this.createMatrix();
+
+  //   } else {
+  //     // Warn when play can not start         
+  //     let toast = this.toastCtrl.create({
+  //       message: 'Er zijn te weinig spelers om te starten.',
+  //       duration: 3000,
+  //       position: 'top'
+  //     });
+  //     toast.present();
+  //   }
+  // });
+
+
+
+  // /**
+  //  * 
+  //  * 
+  //  * @returns {string[]} 
+  //  * @memberof HomePage
+  //  */
+  // public getCurrentPitch(): string[] {
+  //   console.log("getCurrentPitch", this.currentMatrix, this.currentTeam.players, this.currentIndex)
+  //   if (this.currentMatrix == undefined || this.currentTeam == undefined) {
+  //     return null;
+  //   }
+  //   return this.gameService.getCurrentPitch(this.currentMatrix, this.currentTeam.players, this.currentIndex);
+  // }
+
+
+  // getCurrentBench(): string[] {
+  //   console.log("getCurrentBench", this.currentMatrix, this.currentTeam.players, this.currentIndex)
+  //   if (this.currentMatrix == undefined || this.currentTeam == undefined) {
+  //     return null;
+  //   }
+  //   return this.gameService.getCurrentBench(this.currentMatrix, this.currentTeam.players, this.currentIndex);
+  // }
 
 
   /**  Create multidimensional array that holds the matrix of players */
@@ -318,128 +352,109 @@ export class HomePage {
   /** Start game */
   startGame(): void {
 
-    // let alert = this.alertCtrl.create({
-    //   title: 'Wedstrijd beginnen?',
+    let title = this.currentGame.gameStarted ? "Wedstrijd hervatten?" : "Wedstrijd beginnen?";
 
-    //   buttons: [
-    //     {
-    //       text: 'Nee',
-    //       handler: () => {
-    //       }
-    //     },
-    //     {
-    //       text: 'Ja',
-    //       handler: () => {
+    let alert = this.alertCtrl.create({
+      title: title,
 
-    //         if (!this.gameStarted) {
-    //           // if the game was not already started, set the properties 
-    //           // that mark the game as started. 
-    //           this.gameStarted = true;
-    //           this.actualGameStartedTime = moment(); // now
-    //           this.gameTime = moment("1900-01-01 00:00:00"); // just duration
-    //           this.formationDone = true;
+      buttons: [
+        {
+          text: 'Nee',
+          handler: () => {
+          }
+        },
+        {
+          text: 'Ja',
+          handler: () => {
 
-    //           // save to storage
-    //           let game: Game;
-    //           this.storage.get("game").then((value) => {
-    //             // get the game object, set properties
-    //             game = value;
-    //             game.gameStarted = true;
-    //             game.gamePaused = false;
-    //             game.actualGameStartedTime = this.actualGameStartedTime;
-    //             game.gameTime = this.gameTime;
-    //             game.formationDone = true;
+            if (!this.currentGame.gameStarted) {
+              // if the game was not already started, set the properties 
+              // that mark the game as started. 
+              this.currentGame.gameStarted = true;
+              this.currentGame.gamePaused = false;
+              this.currentGame.actualGameStartedTime = moment(); // now
+              this.currentGame.gameTime = moment("1900-01-01 00:00:00"); // just duration
+              this.currentGame.formationDone = true;
 
-    //             this.storage.set("game", game);
-    //           });
+              // save to storage
+              this.gameService.saveGame(this.currentGame);
+              this.currentGameTime = this.currentGame.gameTime;
 
-    //         }
-    //         // (re)start the interval
-    //         this.gamePaused = false;
-    //         this.startTimer();
+            }
+            // (re)start the interval
+            this.currentGame.gamePaused = false;
+            this.startTimer();
 
-    //       }
-    //     }
-    //   ]
-    // });
-    // alert.present();
+          }
+        }
+      ]
+    });
+    alert.present();
   }
 
   private startTimer() {
-    // this.timer = TimerObservable.create(1, 200);
+    this.timer = TimerObservable.create(1, 200);
 
-    // this.timerSubscription = this.timer.subscribe(
-    //   t => {
-    //     this.saveCounter += 1;
-    //     if (this.gameTime == null) {
-    //       console.log("Reset gameTime");
-    //       this.gameTime = moment("1900-01-01 00:00:00"); // just duration
-    //     }
-    //     this.gameTime = this.gameTime.add(200, 'milliseconds');
+    this.timerSubscription = this.timer.subscribe(
+      t => {
+        this.saveCounter += 1;
+        if (this.currentGame.gameTime == null) {
+          console.log("Reset gameTime");
+          this.currentGame.gameTime = moment(this.DATE_MIN_VALUE); // just duration
+        }
+        this.currentGame.gameTime = this.currentGame.gameTime.add(200, 'milliseconds');
 
-    //     // determine the current timeblock
-    //     for (let i = 0; i < this.timeBlocks.length; i++) {
+        // determine the current timeblock
+        for (let i = 0; i < this.currentMatrix.timeBlocks.length; i++) {
 
-    //       let m = moment("1900-01-01 00:00:00");
-    //       m.add(this.timeBlocks[i], "seconds");
-    //       if (m.isBefore(this.gameTime)) {
-    //         this.currentIndex = i;
-    //       }
-    //     }
+          let m = moment(this.DATE_MIN_VALUE);
+          m.add(this.currentMatrix.timeBlocks[i], "seconds");
+          if (m.isBefore(this.currentGame.gameTime)) {
+            this.currentIndex = i;
+          }
+        }
 
-    //     console.log("Current index", this.currentIndex);
+        console.log("Current index", this.currentIndex);
 
-    //     let game: Game;
-    //     if (this.saveCounter == 10) { // every two seconds
-    //       this.storage.get("game").then((value) => {
-    //         game = value;
-    //         game.gameTime = this.gameTime;
-    //         this.storage.set("game", game);
-    //         this.saveCounter = 0;
-    //       });
-    //     }
-
-    //   }
-    // );
+        // every two seconds, save the game
+        if (this.saveCounter == 10) {
+          this.gameService.saveGame(this.currentGame);
+          this.saveCounter = 0;
+        }
+      }
+    );
   }
   /** unsubscribe from the timer observable */
   private stopTimer() {
 
-    // if (this.timerSubscription != null && typeof this.timerSubscription !== "undefined") {
-    //   this.timerSubscription.unsubscribe();
-    // }
+    if (this.timerSubscription != null && typeof this.timerSubscription !== "undefined") {
+      this.timerSubscription.unsubscribe();
+    }
   }
 
   /** Pause the game */
   pauseGame(): void {
 
-    // let alert = this.alertCtrl.create({
-    //   title: 'Wedstrijd pauzeren?',
+    let alert = this.alertCtrl.create({
+      title: 'Wedstrijd pauzeren?',
 
-    //   buttons: [
-    //     {
-    //       text: 'Nee',
-    //       handler: () => {
-    //       }
-    //     },
-    //     {
-    //       text: 'Ja',
-    //       handler: () => {
-    //         this.gamePaused = true;
-    //         this.stopTimer()
-
-    //         let game: Game;
-    //         this.storage.get("game").then((value) => {
-    //           // get the game object, set properties
-    //           game = value;
-    //           game.gamePaused = true;
-    //           this.storage.set("game", game);
-    //         });
-    //       }
-    //     }
-    //   ]
-    // });
-    // alert.present();
+      buttons: [
+        {
+          text: 'Nee',
+          handler: () => {
+          }
+        },
+        {
+          text: 'Ja',
+          handler: () => {
+            this.currentGame.gamePaused = true;
+            this.gameService.saveGame(this.currentGame);
+            this.stopTimer()
+          }
+        }
+      ]
+    });
+    alert.present();
   }
 
   /**
@@ -448,43 +463,31 @@ export class HomePage {
    */
   stopGame(): void {
 
-    // let alert = this.alertCtrl.create({
-    //   title: 'Wedstrijd beeindigen?',
+    let alert = this.alertCtrl.create({
+      title: 'Wedstrijd beeindigen?',
 
-    //   buttons: [
-    //     {
-    //       text: 'Nee',
-    //       handler: () => {
-    //       }
-    //     },
-    //     {
-    //       text: 'Ja',
-    //       handler: () => {
-    //         this.gamePaused = false;
-    //         this.gameStarted = false;
-    //         this.gameTime = null;
-    //         this.actualGameStartedTime = null;
-    //         this.formationDone = false;
+      buttons: [
+        {
+          text: 'Nee',
+          handler: () => {
+          }
+        },
+        {
+          text: 'Ja',
+          handler: () => {
+            this.currentGame.gamePaused = false;
+            this.currentGame.gameStarted = false;
+            this.currentGame.gameTime = null;
+            this.currentGame.actualGameStartedTime = null;
+            this.formationDone = false;
+            this.gameService.saveGame(this.currentGame);
+            this.stopTimer();
 
-    //         this.stopTimer();
-
-    //         let game: Game;
-    //         this.storage.get("game").then((value) => {
-    //           // get the game object, set properties
-    //           game = value;
-    //           game.gamePaused = false;
-    //           game.gameStarted = false;
-    //           game.gameTime = this.gameTime;
-    //           game.actualGameStartedTime = null;
-    //           game.formationDone = false;
-    //           game.actualFormationDoneTime = null;
-    //           this.storage.set("game", game);
-    //         });
-    //       }
-    //     }
-    //   ]
-    // });
-    // alert.present();
+          }
+        }
+      ]
+    });
+    alert.present();
   }
 
   itemTapped(event, item) {

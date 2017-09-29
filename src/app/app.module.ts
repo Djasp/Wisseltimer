@@ -1,5 +1,7 @@
+import { Matrix } from './shared/models/matrix.model';
 import { GameService } from './shared/services/game.service';
 import { FormationService } from './shared/services/formation.service';
+import { MatrixService } from './shared/services/matrix.service';
 import { TeamService } from './shared/services/team.service';
 import { SortByPipe } from './shared/pipes/sortby.pipe';
 import { AboutPage } from './../pages/about/about';
@@ -61,12 +63,15 @@ import { SplashScreen } from '@ionic-native/splash-screen';
     TeamService,
     FormationService,
     GameService,
+    MatrixService,
     { provide: ErrorHandler, useClass: IonicErrorHandler }
   ]
 })
 export class AppModule {
 
   constructor() {
+    console.clear();
     console.log("AppModule constructor.");
+
   }
 }

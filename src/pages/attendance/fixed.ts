@@ -16,15 +16,15 @@ import moment from 'moment';
 })
 
 export class FixedPage {
-    private players: Player[];
+    private startingPlayers: Player[];
 
     selectedItem: any;
 
     constructor(public navCtrl: NavController,
         public navParams: NavParams,
         private settingsService: SettingsService,
-        private teamService: TeamService,
         private gameService: GameService,
+        private teamService: TeamService,
         public toastCtrl: ToastController) {
         this.selectedItem = navParams.get('item');
     }
@@ -41,8 +41,8 @@ export class FixedPage {
      * @memberof FixedPage
      */
     refreshPlayerList(): void {
-        this.teamService.loadTeam().then(value => {
-            this.players = value.players.filter(player => player.isPresent && player.inStartingFormation);
+        this.teamService.getStartingLineup().subscribe((data: Player[]) => {
+            this.startingPlayers = data;//.filter(player => player.isPresent && player.inStartingFormation);
         });
     }
 
@@ -53,9 +53,7 @@ export class FixedPage {
      * @memberof FixedPage
       */
     onTogglePlayerDoNotSubstitute(player: Player): void {
-        this.teamService.togglePlayerDoNotSubstitute(player).then(() => {
-            this.refreshPlayerList();
-        });
+        this.teamService.togglePlayerDoNotSubstitute(player);
     }
 
     /**
@@ -64,9 +62,8 @@ export class FixedPage {
      * @memberof FixedPage
      */
     goToHome() {
-        this.gameService.markFormationDone().then(() => {
-            this.navCtrl.setRoot(HomePage)
-        });
+        this.gameService.markFormationDone();
+        this.navCtrl.setRoot(HomePage)
     }
 
     itemTapped(event, item) {

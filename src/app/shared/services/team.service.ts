@@ -2,12 +2,16 @@ import { Player } from './../models/player.model';
 import { Team } from './../models/team.model';
 import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage';
+import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/observable/of';
 
 @Injectable()
 export class TeamService {
-    currentTeam: Team = new Team();
-    constructor(private storage: Storage) {
-    }
+    TEAM = "team";
+    currentTeam: Team;
+
+    constructor(public storage: Storage) { }
 
     /**
      * Load the team from the database 
@@ -15,20 +19,20 @@ export class TeamService {
      * @returns {Team} 
      * @memberof TeamService
      */
-    loadTeam(): Promise<Team> {
-        // create new promise 
-        let promise = new Promise<Team>((resolve, reject) => {
-            // get team object from storage 
-            this.storage.get("team")
-                .then(value => {
-                    if (value != null) {
-                        this.currentTeam = new Team(value);
-                        console.log("Loaded team", this.currentTeam);
-                    }
-                    resolve(this.currentTeam);
-                });
-        });
-        return promise;
+
+    loadTeam(): Observable<Team> {
+
+        return Observable.fromPromise(this.storage.get(this.TEAM).then(value => {
+            if (value != null) {
+                this.currentTeam = value;
+                console.log("Loaded team", this.currentTeam);
+            } else {
+                this.currentTeam = new Team();
+                this.saveTeam(this.currentTeam);
+                console.log("Created team", this.currentTeam);
+            }
+            return this.currentTeam;
+        }));
     }
 
     /**
@@ -37,17 +41,9 @@ export class TeamService {
      * @param {Team} team 
      * @memberof TeamService
      */
-    saveTeam(team: Team): Promise<Team> {
-        // let saved: boolean;
-        let promise = new Promise<Team>((resolve, reject) => {
-            console.log("Save team", team);
-            // save the team object to the storage
-            this.storage.set("team", team).then(
-                () => resolve(),
-                () => reject()
-            );
-        });
-        return promise;
+    saveTeam(team: Team): void {
+        console.log("Save team", team);
+        this.storage.set(this.TEAM, team)
     }
 
     /**
@@ -57,28 +53,14 @@ export class TeamService {
      * @returns {Promise<Team>} 
      * @memberof TeamService
      */
-    togglePlayerAttendance(player: Player): Promise<Team> {
-        // let saved: boolean;
-        let promise = new Promise<Team>((resolve, reject) => {
+    togglePlayerAttendance(player: Player): void {
+        console.log("Toggle player present", player);
 
-            console.log("Toggle player present", player);
+        let index: number = this.currentTeam.players.map(function (e) { return e.name; }).indexOf(player.name);
+        player.isPresent = !player.isPresent; // toggle                    
+        this.currentTeam.players[index] = player;
+        this.saveTeam(this.currentTeam);
 
-            this.loadTeam().then(value => {
-                if (value !== null) {
-                    this.currentTeam = value;
-
-                    // get the index of the item to be deleted 
-                    let index: number = this.currentTeam.players.map(function (e) { return e.name; }).indexOf(player.name);
-                    player.isPresent = !player.isPresent; // toggle                    
-                    this.currentTeam.players[index] = player;
-                    this.saveTeam(this.currentTeam).then( // store the team
-                        () => resolve(this.currentTeam),
-                        () => reject()
-                    );
-                }
-            });
-        });
-        return promise;
     }
 
     /**
@@ -88,59 +70,26 @@ export class TeamService {
      * @returns {Promise<Team>} 
      * @memberof TeamService
      */
-    togglePlayerInStartingFormation(player: Player): Promise<Team> {
-        // let saved: boolean;
-        let promise = new Promise<Team>((resolve, reject) => {
-
-            console.log("Toggle player in starting formation", player);
-
-            this.loadTeam().then(value => {
-                if (value !== null) {
-                    this.currentTeam = value;
-
-                    // get the index of the item to be deleted 
-                    let index: number = this.currentTeam.players.map(function (e) { return e.name; }).indexOf(player.name);
-                    player.inStartingFormation = !player.inStartingFormation; // toggle                    
-                    this.currentTeam.players[index] = player;
-                    this.saveTeam(this.currentTeam).then( // store the team
-                        () => resolve(this.currentTeam),
-                        () => reject()
-                    );
-                }
-            });
-        });
-        return promise;
+    togglePlayerInStartingFormation(player: Player): void {
+        console.log("Toggle player in starting formation", player);
+        let index: number = this.currentTeam.players.map(function (e) { return e.name; }).indexOf(player.name);
+        player.inStartingFormation = !player.inStartingFormation; // toggle                    
+        this.currentTeam.players[index] = player;
+        this.saveTeam(this.currentTeam);
     }
 
     /**
      * Toggle the do not substitute status of a player
      * 
      * @param {Player} player 
-     * @returns {Promise<Team>} 
      * @memberof TeamService
      */
-    togglePlayerDoNotSubstitute(player: Player): Promise<Team> {
-        // let saved: boolean;
-        let promise = new Promise<Team>((resolve, reject) => {
-
-            console.log("Toggle player do not substitute", player);
-
-            this.loadTeam().then(value => {
-                if (value !== null) {
-                    this.currentTeam = value;
-
-                    // get the index of the item to be deleted 
-                    let index: number = this.currentTeam.players.map(function (e) { return e.name; }).indexOf(player.name);
-                    player.doNotSubstitute = !player.doNotSubstitute; // toggle                    
-                    this.currentTeam.players[index] = player;
-                    this.saveTeam(this.currentTeam).then( // store the team
-                        () => resolve(this.currentTeam),
-                        () => reject()
-                    );
-                }
-            });
-        });
-        return promise;
+    togglePlayerDoNotSubstitute(player: Player): void {
+        console.log("Toggle player do not substitute", player);
+        let index: number = this.currentTeam.players.map(function (e) { return e.name; }).indexOf(player.name);
+        player.doNotSubstitute = !player.doNotSubstitute; // toggle                    
+        this.currentTeam.players[index] = player;
+        this.saveTeam(this.currentTeam);
     }
 
     /**
@@ -150,24 +99,12 @@ export class TeamService {
      * @returns {Promise<Team>} 
      * @memberof TeamService
      */
-    addPlayer(player: Player): Promise<Team> {
+    addPlayer(player: Player): void {
         // let saved: boolean;
-        let promise = new Promise<Team>((resolve, reject) => {
+        console.log("Add player to team", player, this.currentTeam);
+        this.currentTeam.players.push(player);
+        this.saveTeam(this.currentTeam);
 
-            console.log("Add player to team", player);
-
-            this.loadTeam().then(value => {
-                if (value !== null) {
-                    this.currentTeam = value;
-                    this.currentTeam.players.push(player);
-                    this.saveTeam(this.currentTeam).then( // store the team
-                        () => resolve(),
-                        () => reject()
-                    );
-                }
-            });
-        });
-        return promise;
     }
 
     /**
@@ -177,84 +114,61 @@ export class TeamService {
      * @returns {Promise<Team>} 
      * @memberof TeamService
      */
-    deletePlayer(player: Player): Promise<Team> {
-        let promise = new Promise<Team>((resolve, reject) => {
+    deletePlayer(player: Player): void {
+        console.log("Delete player from team", player, this.currentTeam);
 
-            console.log("Delete player from team", player);
-
-            this.loadTeam().then(value => {
-                if (value !== null) {
-                    this.currentTeam = value;
-
-                    var index = this.currentTeam.players.indexOf(player); // get the index of the player to be deleted 
-                    this.currentTeam.players.splice(index, 1); // remove from array;
-                    this.saveTeam(this.currentTeam).then( // store the team
-                        () => resolve(),
-                        () => reject()
-                    );
-                }
-            });
-        });
-        return promise;
+        var index = this.currentTeam.players.indexOf(player); // get the index of the player to be deleted 
+        this.currentTeam.players.splice(index, 1); // remove from array;
+        this.saveTeam(this.currentTeam);
     }
 
-    public getPresentPlayers(): Promise<Player[]> {
-        let promise = new Promise<Player[]>((resolve, reject) => {
-            console.log("Get present players");
-            this.loadTeam().then(value => {
-                if (value !== null) {
-                    this.currentTeam = value;
-                    resolve(value.players.filter(player => player.isPresent));
-                } else {
-                    reject();
-                }
-            });
+    public getAllPlayers(): Observable<Player[]> {
+        console.log("Get all players");
+        // return Observable.of(this.currentTeam.players);
+
+        return this.loadTeam().map((data: Team) => {
+            return data.players;
         });
-        return promise;
     }
 
-    public getSubstitutablePlayers(): Promise<Player[]> {
-        let promise = new Promise<Player[]>((resolve, reject) => {
-            console.log("Get subtitutable players");
-            this.loadTeam().then(value => {
-                if (value !== null) {
-                    this.currentTeam = value;
-                    resolve(value.players.filter(player => player.isPresent && !player.doNotSubstitute));
-                } else {
-                    reject();
-                }
-            });
+    public getPresentPlayers(): Observable<Player[]> {
+        //  return Observable.of(this.currentTeam.players.filter(player => player.isPresent));
+
+        return this.loadTeam().map((data: Team) => {
+            console.log("Get present players", data);
+
+            if (data.players == undefined) return null;
+            return data.players.filter(player => player.isPresent);
         });
-        return promise;
     }
 
-    public getNotSubstitutablePlayers(): Promise<Player[]> {
-        let promise = new Promise<Player[]>((resolve, reject) => {
-            console.log("Get not-subtitutable players");
-            this.loadTeam().then(value => {
-                if (value !== null) {
-                    this.currentTeam = value;
-                    resolve(value.players.filter(player => player.isPresent && player.doNotSubstitute));
-                } else {
-                    reject();
-                }
-            });
+    public getSubstitutablePlayers(): Observable<Player[]> {
+        console.log("Get subtitutable players");
+        // return Observable.of(this.currentTeam.players.filter(player => player.isPresent && !player.doNotSubstitute));
+
+        return this.loadTeam().map((data: Team) => {
+            if (data.players == undefined) return null;
+            return data.players.filter(player => player.isPresent && !player.doNotSubstitute);
         });
-        return promise;
     }
 
-    public getStartingLineup(): Promise<Player[]> {
-        let promise = new Promise<Player[]>((resolve, reject) => {
-            console.log("Get starting lineup");
-            this.loadTeam().then(value => {
-                if (value !== null) {
-                    this.currentTeam = value;
-                    resolve(value.players.filter(player => player.isPresent && player.inStartingFormation));
-                } else {
-                    reject();
-                }
-            });
+    public getNotSubstitutablePlayers(): Observable<Player[]> {
+        console.log("Get not-subtitutable players");
+        // return Observable.of(this.currentTeam.players.filter(player => player.isPresent && player.doNotSubstitute));
+
+        return this.loadTeam().map((data: Team) => {
+            if (data.players == undefined) return null;
+            return data.players.filter(player => player.isPresent && player.doNotSubstitute);
         });
-        return promise;
+    }
+
+    public getStartingLineup(): Observable<Player[]> {
+        console.log("Get starting lineup");
+        // return Observable.of(this.currentTeam.players.filter(player => player.isPresent && player.inStartingFormation));
+
+        return this.loadTeam().map((data: Team) => {
+            if (data.players == undefined) return null;
+            return data.players.filter(player => player.isPresent && player.inStartingFormation);
+        });
     }
 }

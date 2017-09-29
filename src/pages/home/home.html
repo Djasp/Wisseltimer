@@ -9,28 +9,50 @@
   </ion-navbar>
 </ion-header>
 <ion-content padding>
-  <button ion-button ion-button full icon-left (click)="goToAttendance()" *ngIf="!formationDone">
-    <ion-icon name="people" ></ion-icon> Wie spelen er?
+  <div *ngIf="!allowStart">
+    <p>Er zijn geen spelers om de wedstrijd mee te beginnen.</p>
+  </div>
+  <div *ngIf="!formationDone && allowStart">
+    <p>Bepaal de opstelling, basis en wissels.</p>
+  </div>
+  <button ion-button ion-button full icon-left round (click)="goToAttendance()" *ngIf="!formationDone && allowStart">
+    <ion-icon name="people" ></ion-icon> Opstelling
       </button>
   <div *ngIf="formationDone">
-    <div class="wt-timer" text-center *ngIf="gameTime != null">{{gameTime.format("mm:ss")}}</div>
-    <button ion-button color="secondary" full icon-left round (click)="startGame()" *ngIf="!gameStarted || gamePaused"><ion-icon name="play"></ion-icon> Start {{whatWePlay}}</button>
-    <button ion-button color="light" full icon-left round (click)="pauseGame()" *ngIf="gameStarted && gamePaused== false"><ion-icon name="pause"></ion-icon> Pauzeer {{whatWePlay}}</button>
-    <button ion-button color="danger" full icon-left round (click)="stopGame()" *ngIf="gameStarted && gamePaused"><ion-icon name="square"></ion-icon> Beëindig {{whatWePlay}}</button>
+    <div class="wt-timer" text-center>{{currentGameTime.format("mm:ss")}}</div>
+    <button ion-button color="secondary" full icon-left round (click)="startGame()" *ngIf="!currentGame.gameStarted || currentGame.gamePaused"><ion-icon name="play"></ion-icon> Start {{whatWePlay}}</button>
+    <button ion-button color="light" full icon-left round (click)="pauseGame()" *ngIf="currentGame.gameStarted && currentGame.gamePaused== false"><ion-icon name="pause"></ion-icon> Pauzeer {{whatWePlay}}</button>
+    <button ion-button color="danger" full icon-left round (click)="stopGame()" *ngIf="currentGame.gameStarted && currentGame.gamePaused"><ion-icon name="square"></ion-icon> Beëindig {{whatWePlay}}</button>
+    <ion-card>
+      <ion-card-header>
+        Op het veld
+      </ion-card-header>
+
+      <ion-list>
+        <ion-item *ngFor="let playername of currentPitch"> {{playername}}
+        </ion-item>
+
+      </ion-list>
+    </ion-card>
+
+    <h4>Veld</h4>
+    <ion-badge *ngFor="let playername of currentPitch">
+      {{playername}}
+    </ion-badge>
     <ion-list margin>
       <ion-item-divider color="light">Veld</ion-item-divider>
-      <ion-item *ngFor="let playername of getCurrentPitch()">
+      <ion-item *ngFor="let playername of currentPitch">
         {{playername}}
       </ion-item>
     </ion-list>
-    <ion-list *ngIf="getCurrentBench().length > 0">
+    <!-- <ion-list *ngIf="getCurrentBench().length > 0">
       <ion-item-divider color="light">Bank</ion-item-divider>
       <div *ngFor="let playername of getCurrentBench()">
         <ion-item>
           {{playername}}
         </ion-item>
       </div>
-    </ion-list>
+    </ion-list> -->
     <!--
     <ion-list *ngIf="getSubstitutes(currentIndex).length > 0">
       <ion-item-divider color="light">Wissels</ion-item-divider>

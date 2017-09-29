@@ -9,14 +9,13 @@ import { Storage } from '@ionic/storage';
 
 @Component({
     selector: 'page-formation',
-    templateUrl: 'formation.html'
+    templateUrl: 'formation.html',
 })
 
 export class FormationPage {
     private availablePlayers: Player[];
+    private startingPlayersCount: number;
     selectedItem: any;
-    private currentSettings: Settings;
-    private allowNextScreen: boolean = false;
 
     constructor(public navCtrl: NavController,
         public navParams: NavParams,
@@ -28,11 +27,6 @@ export class FormationPage {
 
     /**  fires every time a page becomes the active view */
     ionViewWillEnter() {
-        this.settingsService.loadSettings().then(value => {
-            this.currentSettings = value;
-        });
-
-        // load players list
         this.refreshPlayerList();
     }
 
@@ -43,15 +37,27 @@ export class FormationPage {
     */
     refreshPlayerList(): void {
 
-        this.teamService.loadTeam().then(value => {
-            this.availablePlayers = value.players.filter(player => player.isPresent);
+        this.teamService.getPresentPlayers().subscribe((data: Player[]) => {
+            this.availablePlayers = data;
+        });
+    }
 
-            // check if there are enough players for starting
-            let startingPlayers: number = this.availablePlayers.filter(player => player.inStartingFormation).length;
-            this.allowNextScreen = (this.currentSettings.fieldPlayers <= startingPlayers)
+    /**
+     * Toggle starting formation for player
+     * 
+     * @param {Player} player 
+     * @memberof FormationPage
+     */
+    onToggleStartingFormation(player: Player): void {
+        this.teamService.togglePlayerInStartingFormation(player);
+    }
+    /** Go to the next page */
+    goToFixed() {
 
-            if (this.currentSettings.fieldPlayers > startingPlayers) {
-                this.allowNextScreen = false;
+        this.settingsService.loadSettings().then(value => {
+            this.startingPlayersCount = this.availablePlayers.filter(p => p.inStartingFormation && p.isPresent).length;
+            console.log(value.fieldPlayers, this.startingPlayersCount);
+            if (value.fieldPlayers > this.startingPlayersCount) {
 
                 let toast = this.toastCtrl.create({
                     message: 'Er staan te weinig spelers in de basis.',
@@ -59,8 +65,7 @@ export class FormationPage {
                     position: 'top'
                 });
                 toast.present();
-            } else if (this.currentSettings.fieldPlayers < startingPlayers) {
-                this.allowNextScreen = false;
+            } else if (value.fieldPlayers < this.startingPlayersCount) {
 
                 let toast = this.toastCtrl.create({
                     message: 'Er staan te veel spelers in de basis.',
@@ -69,59 +74,9 @@ export class FormationPage {
                 });
                 toast.present();
             } else {
-                this.allowNextScreen = true;
+                this.navCtrl.push(FixedPage);
             }
-
         });
-    }
-
-    // /** Get the list of players that are available from the storage  */
-    // refreshPlayerList(): void {
-    //     let fieldPlayers: number;
-    //     let startingPlayers: number;
-    //     // get gameobject to determine the minimum number of players
-    //     this.storage.get("game").then((value) => {
-    //         fieldPlayers = value.fieldPlayers; // number of players on the field
-    //     });
-
-    //     this.storage.get("players").then((value) => {
-    //         // filter the present players
-    //         this.players = value.filter(player => player.isPresent);
-    //         startingPlayers = this.players.filter(player => player.isPresent && player.inStartingFormation).length;
-
-    //         this.allowNextScreen = (startingPlayers == fieldPlayers);
-
-    //         console.log("allow", this.allowNextScreen);
-
-    //         if (startingPlayers > fieldPlayers) {
-    //             // Warn when play can not start         
-    //             let toast = this.toastCtrl.create({
-    //                 message: 'Er staan te veel spelers in de basis.',
-    //                 duration: 3000,
-    //                 position: 'top'
-    //             });
-    //             toast.present();
-    //         }
-    //     });
-    // }
-
-    onToggleStartingFormation(player: Player): void {
-        this.teamService.togglePlayerInStartingFormation(player).then(() => {
-            this.refreshPlayerList();
-        });
-        // this.teamService.
-        //     console.log("Player", player);
-        // var index = this.availablePlayers.indexOf(player); // get the index of the item to be deleted 
-        // player.inStartingFormation = !player.inStartingFormation; // toggle
-        // this.availablePlayers[index] = player;
-        // this.storage.set("players", this.availablePlayers).then(
-        //     () => this.refreshPlayerList(),
-        //     () => console.log("Task Errored!")
-        // );
-    }
-    /** Go to the next page */
-    goToFixed() {
-        this.navCtrl.push(FixedPage);
     }
 
     itemTapped(event, item) {

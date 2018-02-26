@@ -40,6 +40,11 @@ export class SettingsService {
         // let saved: boolean;
         let promise = new Promise<Settings>((resolve, reject) => {
             console.log("Save settings", settings);
+
+            // remove any matrix and game 
+            this.storage.remove("matrix");
+            this.storage.remove("game");
+
             // save the settings object to the storage
             this.storage.set("settings", settings).then(
                 () => resolve(),

@@ -1,6 +1,9 @@
+
+
 export class Matrix {
-    public timeBlocks = [] = [];
+    public timeBlocks: number[] = [];
     public matrix = [] = [];
+
     constructor() {
 
     }

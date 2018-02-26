@@ -11,8 +11,9 @@ import 'rxjs/add/observable/of';
 @Injectable()
 export class MatrixService {
     private MATRIX = "matrix";
-    private timeBlocks = [] = [];
+    private timeBlocks: number[] = [];
     private currentMatrix: Matrix;
+    private DATE_MIN_VALUE: string = "1900-01-01 00:00:00";
 
     constructor(private storage: Storage) {
 
@@ -65,14 +66,14 @@ export class MatrixService {
         const numberOfAvailablePlayers: number = presentPlayers.length; // 8 / n
         numberOfPositionsOnTheField = numberOfPositionsOnTheField - notSubstitutablePlayers.length;
         let numberOfSubstitutablePeople: number = numberOfAvailablePlayers - notSubstitutablePlayers.length;
-        const secondsPerPlayer: number = (minutesPlaying * 60) / numberOfAvailablePlayers;
+        const secondsPerPlayer: number = (minutesPlaying * 60) / numberOfSubstitutablePeople;
 
         // create the timeBlocks array. Each item marks the END of the period where 
         // a player is on the sideline 
         matrix.timeBlocks = [];
-        for (let y: number = 1; y <= numberOfAvailablePlayers; y++) {
+        for (let y: number = 1; y <= numberOfSubstitutablePeople; y++) {
             let seconds: number = secondsPerPlayer * y;
-            matrix.timeBlocks.push(moment("1900-01-01 00:00:00").add(seconds, "seconds"));
+            matrix.timeBlocks.push(seconds);
         }
 
         // create the matrix. Fill the field with numbers that are to be  replaced with actual player names 

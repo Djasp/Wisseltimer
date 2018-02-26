@@ -19,53 +19,37 @@
     <ion-icon name="people" ></ion-icon> Opstelling
       </button>
   <div *ngIf="formationDone">
-    <div class="wt-timer" text-center>{{currentGameTime.format("mm:ss")}}</div>
+    <div class="wt-timer" text-center>{{currentGameTime.format("mm:ss")}} </div>
+    {{remainingGameTime.format(("mm:ss"))}}
     <button ion-button color="secondary" full icon-left round (click)="startGame()" *ngIf="!currentGame.gameStarted || currentGame.gamePaused"><ion-icon name="play"></ion-icon> Start {{whatWePlay}}</button>
     <button ion-button color="light" full icon-left round (click)="pauseGame()" *ngIf="currentGame.gameStarted && currentGame.gamePaused== false"><ion-icon name="pause"></ion-icon> Pauzeer {{whatWePlay}}</button>
     <button ion-button color="danger" full icon-left round (click)="stopGame()" *ngIf="currentGame.gameStarted && currentGame.gamePaused"><ion-icon name="square"></ion-icon> Beëindig {{whatWePlay}}</button>
-    <ion-card>
-      <ion-card-header>
-        Op het veld
-      </ion-card-header>
-
-      <ion-list>
-        <ion-item *ngFor="let playername of currentPitch"> {{playername}}
-        </ion-item>
-
-      </ion-list>
-    </ion-card>
 
     <h4>Veld</h4>
     <ion-badge *ngFor="let playername of currentPitch">
       {{playername}}
     </ion-badge>
-    <ion-list margin>
-      <ion-item-divider color="light">Veld</ion-item-divider>
-      <ion-item *ngFor="let playername of currentPitch">
-        {{playername}}
-      </ion-item>
-    </ion-list>
-    <!-- <ion-list *ngIf="getCurrentBench().length > 0">
-      <ion-item-divider color="light">Bank</ion-item-divider>
-      <div *ngFor="let playername of getCurrentBench()">
-        <ion-item>
-          {{playername}}
-        </ion-item>
+    <hr>
+    <h4>Bank</h4>
+    <ion-badge *ngFor="let playername of currentBench">
+      {{playername}}
+    </ion-badge>
+    <hr>
+    <h4>Wissel rooster</h4>
+    <div *ngFor="let player of substitutes">
+      <div *ngIf="currentIndex <= player.index">
+        <h5> {{player.formattedTime()}}</h5>
+        <ion-list>
+          <ion-item *ngIf="player.inName !=''">
+            <ion-icon name="arrow-up" color="secondary"></ion-icon>
+            {{player.inName}}
+          </ion-item>
+          <ion-item *ngIf="player.outName !=''">
+            <ion-icon name="arrow-down" color="danger"></ion-icon>
+            {{player.outName}}
+          </ion-item>
+        </ion-list>
       </div>
-    </ion-list> -->
-    <!--
-    <ion-list *ngIf="getSubstitutes(currentIndex).length > 0">
-      <ion-item-divider color="light">Wissels</ion-item-divider>
-      <div *ngFor="let player of getSubstitutes(currentIndex)">
-        <ion-item *ngIf="player.inName !=''">
-          <ion-icon name="arrow-up" color="secondary"></ion-icon>
-          {{player.inName}}
-        </ion-item>
-        <ion-item *ngIf="player.outName !=''">
-          <ion-icon name="arrow-down" color="danger"></ion-icon>
-          {{player.outName}}
-        </ion-item>
-      </div>
-    </ion-list> -->
+    </div>
   </div>
 </ion-content>

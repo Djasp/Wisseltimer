@@ -28,48 +28,6 @@ export class GameService {
         }));
     }
 
-    // /**
-    //  * Get the names of the players that are on the field at the given index
-    //  * 
-    //  * @param {Matrix} matrix 
-    //  * @param {number} col 
-    //  * @returns {string[]} 
-    //  * @memberof GameService
-    //  */
-    // public getCurrentPitch(matrix: Matrix, players: Player[], col: number) {
-    //     let playerNamesOnTheField: string[] = []
-    //     if (matrix !== undefined) {
-    //         playerNamesOnTheField = matrix.matrix.map(function (value, index) { return value[col]; });
-    //         let notSubstitutablePlayers: Player[] = players.filter(p => p.isPresent && p.doNotSubstitute);
-
-    //         notSubstitutablePlayers.forEach(element => {
-    //             playerNamesOnTheField.push(element.name);
-    //         });
-    //     }
-    //     return Observable.of(playerNamesOnTheField);
-    // }
-
-    // public getCurrentBench(matrix: Matrix, players: Player[], col: number): string[] {
-
-    //     let playerNamesOnTheBench: string[] = [];
-    //     if (matrix !== undefined) {
-    //         let playerNamesOnTheField: string[] = matrix.matrix.map(function (value, index) { return value[col]; });
-    //         let notSubstitutablePlayers: Player[] = players.filter(p => p.isPresent && p.doNotSubstitute);
-    //         notSubstitutablePlayers.forEach(element => {
-    //             playerNamesOnTheField.push(element.name);
-    //         });
-
-
-    //         let bench = players.filter(p => p.isPresent && playerNamesOnTheField.indexOf(p.name) == -1);
-
-    //         bench.forEach(element => {
-    //             playerNamesOnTheBench.push(element.name);
-    //         });
-    //     }
-    //     return playerNamesOnTheBench;
-    // }
-
-
     /**
      * Mark the formation as done. The trainer has decided on the starting squad
      * 

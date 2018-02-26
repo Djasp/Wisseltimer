@@ -1,6 +1,5 @@
 import { Matrix } from './shared/models/matrix.model';
 import { GameService } from './shared/services/game.service';
-import { FormationService } from './shared/services/formation.service';
 import { MatrixService } from './shared/services/matrix.service';
 import { TeamService } from './shared/services/team.service';
 import { SortByPipe } from './shared/pipes/sortby.pipe';
@@ -13,6 +12,7 @@ import { SettingsPage } from './../pages/settings/settings';
 import { TeamPage } from './../pages/team/team';
 import { AttendancePage } from './../pages/attendance/attendance';
 
+import { BackgroundMode } from '@ionic-native/background-mode';
 
 import { NgModule, ErrorHandler } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
@@ -61,9 +61,9 @@ import { SplashScreen } from '@ionic-native/splash-screen';
     SimpleTimer,
     SettingsService,
     TeamService,
-    FormationService,
     GameService,
     MatrixService,
+    BackgroundMode,
     { provide: ErrorHandler, useClass: IonicErrorHandler }
   ]
 })

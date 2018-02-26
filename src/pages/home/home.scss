@@ -1,9 +1,15 @@
-page-home {
+page-home {}
 
-}
 .wt-timer {
-    font: {
-        size: 48px;
-        weight: bold;
-    }
+  font: {
+    size: 48px;
+    weight: bold;
+  }
+}
+
+.badge {
+  margin: {
+    right: 12px;
+    bottom: 12px;
+  }
 }

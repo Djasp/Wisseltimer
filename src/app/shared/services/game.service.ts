@@ -37,9 +37,9 @@ export class GameService {
 
         if (this.currentGame != undefined) {
             this.currentGame.formationDone = true;
-            this.currentGame.actualFormationDoneTime = moment();
-            this.currentGame.actualGameStartedTime = null;
-            this.currentGame.gameTime = null;
+            this.currentGame.actualFormationDoneTimeInUnixTimeStamp = moment().unix(); // now
+            this.currentGame.actualGameStartedTimeInUnixTimeStamp = 0;
+            this.currentGame.gameTimeInUnixTimeStamp = 0;
             this.currentGame.gamePaused = false;
             this.currentGame.gameStarted = false;
 
@@ -61,7 +61,9 @@ export class GameService {
      */
     saveGame(game: Game): void {
         console.log("Save game", game);
-        // save the settings object to the storage
+        console.log("actualGameStartedTimeInUnixTimeStamp", game.actualGameStartedTimeInUnixTimeStamp);
+
+        // save the settings object to the storage        
         this.storage.set(this.GAME, game);
     }
 }

@@ -27,7 +27,7 @@ import moment from 'moment';
 })
 
 export class HomePage {
-  private DATE_MIN_VALUE: string = "1900-01-01 00:00:00";
+  private DATE_MIN_VALUE: string = "1970-01-01 00:00:00";
   private selectedItem: any;
   private formationDone: boolean = false;
   private timer: Observable<number>;
@@ -202,21 +202,26 @@ export class HomePage {
           text: 'Ja',
           handler: () => {
 
+            console.log("(re)starting game", this.currentGame.gameStarted)
             if (!this.currentGame.gameStarted) {
               // if the game was not already started, set the properties 
               // that mark the game as started. 
               this.currentGame.gameStarted = true;
               this.currentGame.gamePaused = false;
-              this.currentGame.actualGameStartedTime = moment(); // now
-              this.currentGame.gameTime = moment("1900-01-01 00:00:00"); // just duration
+              this.currentGame.actualGameStartedTimeInUnixTimeStamp = moment().unix(); // now
+              this.currentGame.gameTimeInUnixTimeStamp = 0;
               this.currentGame.formationDone = true;
               this.currentIndex = 0;
+
               // save to storage
               this.gameService.saveGame(this.currentGame);
-              // this.currentGameTime = this.currentGame.gameTime;
 
             }
             // (re)start the interval
+
+            // set current gametime 
+            this.currentGameTime = moment.unix(this.currentGame.gameTimeInUnixTimeStamp);
+
             this.currentGame.gamePaused = false;
             this.startTimer();
 
@@ -228,21 +233,35 @@ export class HomePage {
   }
 
   private startTimer() {
+
+    console.log("startTimer");
     this.timer = TimerObservable.create(1, this.INTERVAL);
 
     this.timerSubscription = this.timer.subscribe(
       t => {
         this.saveCounter += 1;
-        if (this.currentGame.gameTime == null) {
+
+        if (this.currentGame.gameTimeInUnixTimeStamp == null) {
           console.log("Reset gameTime");
-          this.currentGame.gameTime = moment(this.DATE_MIN_VALUE); // just duration
+          this.currentGame.gameTimeInUnixTimeStamp = 0; // just duration
           this.currentIndex = 0;
         }
 
-        this.currentGame.gameTime = this.currentGame.gameTime.add(this.INTERVAL, 'milliseconds');
+        // enable background mode for mobile devices 
+        //   this.backgroundMode.enable();
+
+        /* CALCULATE TIMES */
+
+        // add new interval to gameTime
+        this.currentGameTime = this.currentGameTime.add(this.INTERVAL, 'milliseconds');
+
+        // this.currentGameTime = newTime;
+
+        // set newtime as unix in object 
+        console.log("new time", this.currentGameTime.format("mm:ss"));
+        this.currentGame.gameTimeInUnixTimeStamp = this.currentGameTime.unix();
+
         this.remainingGameTime = this.remainingGameTime.subtract(this.INTERVAL, 'milliseconds');
-        this.currentGameTime = this.currentGame.gameTime;
-        this.backgroundMode.enable();
 
         if (this.remainingGameTime.isBefore(moment(this.DATE_MIN_VALUE))) {
           this.remainingGameTime = moment(this.DATE_MIN_VALUE);
@@ -251,7 +270,7 @@ export class HomePage {
         // determine the current timeblock
         for (let i = 0; i < this.currentMatrix.timeBlocks.length; i++) {
           let m: moment.Moment = moment(this.DATE_MIN_VALUE).add(this.currentMatrix.timeBlocks[i], "seconds");
-          if (m.isAfter(this.currentGame.gameTime)) {
+          if (m.isAfter(this.currentGameTime)) {
             this.currentIndex = i;
             break;
           }
@@ -260,7 +279,7 @@ export class HomePage {
 
         // every two seconds, save the game
         if (this.saveCounter == 10) {
-          //   this.gameService.saveGame(this.currentGame);
+          this.gameService.saveGame(this.currentGame);
           this.saveCounter = 0;
         }
       }
@@ -321,8 +340,8 @@ export class HomePage {
           handler: () => {
             this.currentGame.gamePaused = false;
             this.currentGame.gameStarted = false;
-            this.currentGame.gameTime = null;
-            this.currentGame.actualGameStartedTime = null;
+            this.currentGame.gameTimeInUnixTimeStamp = null;
+            this.currentGame.actualGameStartedTimeInUnixTimeStamp = null;
             this.formationDone = false;
             this.gameService.saveGame(this.currentGame);
             this.stopTimer();

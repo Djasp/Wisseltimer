@@ -4,11 +4,10 @@ export class Game {
 
     gameStarted: boolean = false;
     gamePaused: boolean = false;
-    actualGameStartedTime: moment.Moment = null;
-
+    actualGameStartedTimeInUnixTimeStamp: number = 0;
     formationDone: boolean = false;
-    actualFormationDoneTime: moment.Moment = null;
-    gameTime: moment.Moment = null;
+    actualFormationDoneTimeInUnixTimeStamp: number = 0;
+    gameTimeInUnixTimeStamp: number = 0;
 
     constructor(data = {}) {
         Object.assign(this, data);

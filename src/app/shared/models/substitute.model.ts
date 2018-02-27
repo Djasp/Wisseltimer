@@ -5,7 +5,7 @@ export class Substitute {
     public outName: string;
     private seconds: number = 0;
 
-    private DATE_MIN_VALUE: string = "1900-01-01 00:00:00";
+    private DATE_MIN_VALUE: string = "1970-01-01 00:00:00";
 
     index: number;
 

@@ -13,7 +13,7 @@ export class MatrixService {
     private MATRIX = "matrix";
     private timeBlocks: number[] = [];
     private currentMatrix: Matrix;
-    private DATE_MIN_VALUE: string = "1900-01-01 00:00:00";
+    private DATE_MIN_VALUE: string = "1970-01-01 00:00:00";
 
     constructor(private storage: Storage) {
 

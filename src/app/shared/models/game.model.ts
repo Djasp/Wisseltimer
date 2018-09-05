@@ -1,5 +1,3 @@
-import moment from 'moment';
-
 export class Game {
 
     gameStarted: boolean = false;
@@ -14,5 +12,3 @@ export class Game {
     }
 
 }
-
-

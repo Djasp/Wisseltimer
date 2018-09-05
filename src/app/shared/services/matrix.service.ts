@@ -1,9 +1,7 @@
 import { Matrix } from './../models/matrix.model';
 import { Player } from './../models/player.model';
-
 import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage';
-import moment from 'moment';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/observable/of';
@@ -13,12 +11,10 @@ export class MatrixService {
     private MATRIX = "matrix";
     private timeBlocks: number[] = [];
     private currentMatrix: Matrix;
-    private DATE_MIN_VALUE: string = "1970-01-01 00:00:00";
-
+  
     constructor(private storage: Storage) {
 
     }
-
 
     loadMatrix(presentPlayers: Player[], numberOfPositionsOnTheField: number, minutesPlaying: number): Observable<Matrix> {
         // if (this.currentMatrix) {

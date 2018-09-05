@@ -8,14 +8,13 @@ import { Component } from '@angular/core';
 import { NavController, NavParams, ToastController } from 'ionic-angular';
 import { Storage } from '@ionic/storage';
 
-import moment from 'moment';
-
 @Component({
     selector: 'page-fixed',
     templateUrl: 'fixed.html'
 })
 
 export class FixedPage {
+
     private startingPlayers: Player[];
 
     selectedItem: any;

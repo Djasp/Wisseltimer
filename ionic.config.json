@@ -1,8 +1,8 @@
 {
   "name": "wisseltimer",
-  "app_id": "9a5e8cfe",
-  "type": "ionic-angular",
   "integrations": {
     "cordova": {}
-  }
+  },
+  "type": "ionic-angular",
+  "pro_id": "9a5e8cfe"
 }

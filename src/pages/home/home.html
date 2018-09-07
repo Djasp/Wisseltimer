@@ -10,14 +10,15 @@
 </ion-header>
 <ion-content padding>
   <div *ngIf="!allowStart">
-    <p>Er zijn geen spelers om de wedstrijd mee te beginnen.</p>
+    <p>Er zijn geen spelers om de wedstrijd mee te beginnen. Maak eerst een nieuw team aan.</p>
+
   </div>
   <div *ngIf="!formationDone && allowStart">
     <p>Bepaal de opstelling, basis en wissels.</p>
-  </div>
-  <button ion-button ion-button full icon-left round (click)="goToAttendance()" *ngIf="!formationDone && allowStart">
-    <ion-icon name="people" ></ion-icon> Opstelling
-      </button>
+    <button ion-button full icon-left round (click)="goToAttendance()" *ngIf="!formationDone && allowStart">
+      <ion-icon name="people" ></ion-icon> Opstelling
+    </button>
+  </div> 
   <div *ngIf="formationDone">
     <div class="wt-timer" text-center>{{currentGameTime.format("mm:ss")}} </div>
     {{remainingGameTime.format(("mm:ss"))}}

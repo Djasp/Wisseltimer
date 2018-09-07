@@ -72,6 +72,7 @@ export class TeamService {
      */
     togglePlayerInStartingFormation(player: Player): void {
         console.log("Toggle player in starting formation", player);
+
         let index: number = this.currentTeam.players.map(function (e) { return e.name; }).indexOf(player.name);
         player.inStartingFormation = !player.inStartingFormation; // toggle                    
         this.currentTeam.players[index] = player;
@@ -86,6 +87,7 @@ export class TeamService {
      */
     togglePlayerDoNotSubstitute(player: Player): void {
         console.log("Toggle player do not substitute", player);
+
         let index: number = this.currentTeam.players.map(function (e) { return e.name; }).indexOf(player.name);
         player.doNotSubstitute = !player.doNotSubstitute; // toggle                    
         this.currentTeam.players[index] = player;
@@ -102,6 +104,7 @@ export class TeamService {
     addPlayer(player: Player): void {
         // let saved: boolean;
         console.log("Add player to team", player, this.currentTeam);
+        
         this.currentTeam.players.push(player);
         this.saveTeam(this.currentTeam);
 

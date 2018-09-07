@@ -27,7 +27,8 @@ import moment from 'moment';
 })
 
 export class HomePage {
-  private DATE_MIN_VALUE: string = "1970-01-01 00:00:00";
+
+  // private DATE_MIN_VALUE: string = "1970-01-01 00:00:00";
   private selectedItem: any;
   private formationDone: boolean = false;
   private timer: Observable<number>;
@@ -45,7 +46,7 @@ export class HomePage {
   private presentPlayers: Player[] = [];
   private currentSettings: Settings;
   private substitutes: Substitute[] = [];
-  private INTERVAL: number = 100;
+  private INTERVAL: number = 1000;
 
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
@@ -82,10 +83,9 @@ export class HomePage {
       this.formationDone = this.currentGame.formationDone;
       this.allowStart = (this.currentTeam.players != undefined && this.currentTeam.players.length > 0);
       this.presentPlayers = this.currentTeam.players.filter(p => p.isPresent);
-
-      this.currentGameTime = moment(this.DATE_MIN_VALUE);
-      this.remainingGameTime = moment(this.DATE_MIN_VALUE).add(this.currentSettings.minutesPerHalf, "minutes");
-
+      this.remainingGameTime = moment.unix(0).add(this.currentSettings.minutesPerHalf, "minutes"); 
+      this.currentGameTime = moment.unix(0);
+ 
       // get or create matrix
       if (this.formationDone) {
 
@@ -114,8 +114,8 @@ export class HomePage {
           });
 
           console.log("Matrix", this.currentMatrix.matrix);
-          console.log("Timeblockx", this.currentMatrix.timeBlocks);
-          console.log("Substitues", this.substitutes);
+          console.log("Timeblocks", this.currentMatrix.timeBlocks);
+          console.log("Substitutes", this.substitutes);
         });
       }
     });
@@ -131,6 +131,13 @@ export class HomePage {
     return Observable.of(this._getCurrentPitch(this.currentIndex));
   }
 
+  /**
+   * Get the players that are now supposed to be on the bench
+   *
+   * @private
+   * @returns {Observable<string[]>}
+   * @memberof HomePage
+   */
   private getCurrentBench(): Observable<string[]> {
     let playerNamesOnTheBench: string[] = [];
     let current = this._getCurrentPitch(this.currentIndex); // get all players now on pitch  
@@ -148,13 +155,17 @@ export class HomePage {
     let substitutes: Substitute[] = [];
     console.log("Start substitutes", this.currentMatrix.timeBlocks);
     let q: number = this._getCurrentPitch(0).length; //this.currentMatrix.timeBlocks.length - 1;
-
     let sp: number = this.currentTeam.players.filter(p => p.isPresent && !p.doNotSubstitute).length;
-    console.log(q, sp);
+    
+    //console.log(q, sp);
+
     for (let i: number = 1; i < sp; i++) {
       let current: string[] = this._getCurrentPitch(i); // get all players now on the pitch in this block
       let previous: string[] = this._getCurrentPitch(i - 1); // get all players previously on pitch 
-      console.log("QQQQ", i, current, previous);
+
+      if(i === 1) {
+        console.log("getSubstitutes()", i, current, previous);
+      }
 
       for (let x: number = 0; x <= q; x++) {
         if (current[x] != previous[x]) {
@@ -164,7 +175,7 @@ export class HomePage {
         }
       }
     }
-    console.log("Substitutes", substitutes);
+    console.log("Get Substitutes", substitutes);
     return Observable.of(substitutes);
   }
 
@@ -235,11 +246,13 @@ export class HomePage {
   private startTimer() {
 
     console.log("startTimer");
-    this.timer = TimerObservable.create(1, this.INTERVAL);
+    this.timer = TimerObservable.create(1000, this.INTERVAL); // after 1 second (1000 milliseconds), fire every x milliseconds (default 1000)
 
     this.timerSubscription = this.timer.subscribe(
       t => {
         this.saveCounter += 1;
+
+        console.log("tick");
 
         if (this.currentGame.gameTimeInUnixTimeStamp == null) {
           console.log("Reset gameTime");
@@ -248,37 +261,48 @@ export class HomePage {
         }
 
         // enable background mode for mobile devices 
-        //   this.backgroundMode.enable();
+         //  this.backgroundMode.enable();
 
         /* CALCULATE TIMES */
 
-        // add new interval to gameTime
+        // add new interval to gameTime. Remember, currentGameTime is measured from the unix epoch. 
         this.currentGameTime = this.currentGameTime.add(this.INTERVAL, 'milliseconds');
 
-        // this.currentGameTime = newTime;
-
         // set newtime as unix in object 
-        console.log("new time", this.currentGameTime.format("mm:ss"));
         this.currentGame.gameTimeInUnixTimeStamp = this.currentGameTime.unix();
 
-        this.remainingGameTime = this.remainingGameTime.subtract(this.INTERVAL, 'milliseconds');
-
-        if (this.remainingGameTime.isBefore(moment(this.DATE_MIN_VALUE))) {
-          this.remainingGameTime = moment(this.DATE_MIN_VALUE);
+        // determine the remaining time
+        this.remainingGameTime = moment.unix(0).add(this.currentSettings.minutesPerHalf, "minutes")
+        this.remainingGameTime = this.remainingGameTime.subtract( this.currentGameTime.unix(),"seconds"); // then subtract the time alreay played
+      
+        if (this.remainingGameTime.isBefore(moment.unix(0))) {
+          console.log("Fix this.remainingGameTime");
+          this.remainingGameTime = moment.unix(0);
         }
 
-        // determine the current timeblock
+        console.log("new time",this.currentGameTime.format(), this.remainingGameTime.format());
+
+        console.log("current timeblocks",this.currentMatrix.timeBlocks);
+
+        // Determine the current timeblock.
+        // For each block in the matrix, we add the number of seconds assigned to that block
+        // If the current gametime is after that block, we up the index. 
         for (let i = 0; i < this.currentMatrix.timeBlocks.length; i++) {
-          let m: moment.Moment = moment(this.DATE_MIN_VALUE).add(this.currentMatrix.timeBlocks[i], "seconds");
-          if (m.isAfter(this.currentGameTime)) {
+          let m: moment.Moment = moment.unix(0);
+          
+          let x = m.add(this.currentMatrix.timeBlocks[i], "seconds");
+
+          console.log("determine the current timeblock",x.format(), this.currentGameTime.format(),x.isAfter(this.currentGameTime));
+
+          if (x.isAfter(this.currentGameTime)) {
             this.currentIndex = i;
             break;
           }
         }
-        console.log("Current index", this.currentIndex);
+        console.log("Current index", this.currentIndex);    
 
         // every two seconds, save the game
-        if (this.saveCounter == 10) {
+        if (this.saveCounter == 2) {
           this.gameService.saveGame(this.currentGame);
           this.saveCounter = 0;
         }
@@ -359,55 +383,4 @@ export class HomePage {
       item: item
     });
   }
-
-
-  /**
-   * Returns an array of player names that are on the pitch for the given column
-   * 
-   * @private
-   * @param {number} col 
-   * @returns {string[]} 
-   * @memberof HomePage
-   */
-  // private getPlayerNamesFromMatrix(col: number): string[] {
-  //   let column = [];
-  //   for (let i: number = 0; i < this.matrix.length; i++) {
-  //     column.push(this.matrix[i][col]);
-  //   }
-  //   return column;
-  // }
-
-  /**
-   * 
-   * @private
-   * @param {number} col 
-   * @returns {Substitute[]} 
-   * @memberof HomePage
-   */
-
-
-  // /**
-  //  * Get all players that are not on the field for a given matrix column.
-  //  * @private
-  //  * @param {number} col 
-  //  * @returns {string[]} 
-  //  * @memberof HomePage
-  //  */
-  // private getCurrentBench(col: number): string[] {
-  //   let bench: string[] = [];
-  //   let current: string[] = this.getPlayerNamesFromMatrix(col); // get all players now on pitch  
-
-  //   let p: number = this.settings.fieldPlayers; // 6 
-  //   p = p - this.nonSubstitutablePlayers.length;
-
-  //   this.availablePlayers.forEach(player => {
-  //     if (current.indexOf(player.name) == -1) {
-  //       bench.push(player.name);
-  //     }
-  //   });
-
-  //   return bench;
-  // }
-
-
 }

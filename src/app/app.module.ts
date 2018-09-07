@@ -24,6 +24,7 @@ import { HomePage } from '../pages/home/home';
 
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
+import { FavoriteProvider } from './../providers/favorite/favorite';
 
 @NgModule({
   declarations: [
@@ -64,7 +65,9 @@ import { SplashScreen } from '@ionic-native/splash-screen';
     GameService,
     MatrixService,
     BackgroundMode,
-    { provide: ErrorHandler, useClass: IonicErrorHandler }
+    FavoriteProvider,
+    { provide: ErrorHandler, useClass: IonicErrorHandler },
+
   ]
 })
 export class AppModule {

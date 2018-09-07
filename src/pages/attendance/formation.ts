@@ -36,7 +36,7 @@ export class FormationPage {
     * @memberof TeamPage
     */
     refreshPlayerList(): void {
-
+        console.log("refreshPlayerList");
         this.teamService.getPresentPlayers().subscribe((data: Player[]) => {
             this.availablePlayers = data;
         });
@@ -49,26 +49,35 @@ export class FormationPage {
      * @memberof FormationPage
      */
     onToggleStartingFormation(player: Player): void {
+        console.log("onToggleStartingFormation", player);
         this.teamService.togglePlayerInStartingFormation(player);
     }
+
     /** Go to the next page */
     goToFixed() {
 
+        console.log("goToFixed");
+
         this.settingsService.loadSettings().then(value => {
             this.startingPlayersCount = this.availablePlayers.filter(p => p.inStartingFormation && p.isPresent).length;
-            console.log(value.fieldPlayers, this.startingPlayersCount);
+          
             if (value.fieldPlayers > this.startingPlayersCount) {
 
+                var x = value.fieldPlayers - this.startingPlayersCount;
+
                 let toast = this.toastCtrl.create({
-                    message: 'Er staan te weinig spelers in de basis.',
+                  message: 'Er staan te weinig spelers in de basis. Stel er nog ' + x as string + ' op.',
                     duration: 2000,
                     position: 'top'
                 });
                 toast.present();
             } else if (value.fieldPlayers < this.startingPlayersCount) {
 
+            //  const obsolete = this.availablePlayers.filter(player => player.isPresent).length - value.fieldPlayers;
+            var y = this.startingPlayersCount- value.fieldPlayers;
+
                 let toast = this.toastCtrl.create({
-                    message: 'Er staan te veel spelers in de basis.',
+                  message: 'Er staan te veel spelers in de basis. Haal er ' + y as string + ' af.',
                     duration: 2000,
                     position: 'top'
                 });

@@ -34,6 +34,8 @@ export class AttendancePage {
 
   /** Get the list of players from the storage  */
   refreshPlayerList(): void {
+    console.log("refreshPlayerList");
+
     this.teamService.getAllPlayers().subscribe((data: Player[]) => {
       this.allPlayers = data;
       if (this.allPlayers.length == 0) {
@@ -50,6 +52,8 @@ export class AttendancePage {
 
   /** Toggle player attendance */
   onTogglePlayerAttendance(player: Player): void {
+    console.log("onTogglePlayerAttendance", player);
+
     this.teamService.togglePlayerAttendance(player);
   }
 
@@ -59,8 +63,9 @@ export class AttendancePage {
       if (value.fieldPlayers <= this.allPlayers.filter(player => player.isPresent).length) {
         this.navCtrl.push(FormationPage);
       } else {
+        const missing = value.fieldPlayers - this.allPlayers.filter(player => player.isPresent).length;
         let toast = this.toastCtrl.create({
-          message: 'Er zijn te weinig spelers om te spelen.',
+          message: 'Er zijn te weinig spelers om een wedstrijd mee te spelen. Stel er nog ' + missing as string + ' op.',
           duration: 3000,
           position: 'top'
         });

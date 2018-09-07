@@ -9,7 +9,7 @@
   <ion-list>
     <ion-list-header>Wie staan er in de basis</ion-list-header>
     <ion-item *ngFor="let player of availablePlayers">
-      <ion-toggle (click)="onToggleStartingFormation(player)" [(checked)]="player.inStartingFormation"></ion-toggle>
+      <ion-toggle (ionChange)="onToggleStartingFormation(player)" [(checked)]="player.inStartingFormation"></ion-toggle>
       <ion-label>
         {{ player.name }}
       </ion-label>

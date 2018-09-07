@@ -9,7 +9,7 @@
   <ion-list>
     <ion-list-header>Wie mag er niet worden gewisseld?</ion-list-header>
     <ion-item *ngFor="let player of startingPlayers">
-      <ion-toggle (click)="onTogglePlayerDoNotSubstitute(player)" [(checked)]="player.doNotSubstitute"></ion-toggle>
+      <ion-toggle (ionChange)="onTogglePlayerDoNotSubstitute(player)" [(checked)]="player.doNotSubstitute"></ion-toggle>
       <ion-label>
         {{ player.name }}
       </ion-label>

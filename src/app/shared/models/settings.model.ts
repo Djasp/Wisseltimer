@@ -6,8 +6,9 @@
  */
 export class Settings {
 
-    fieldPlayers: number = 6;
-    minutesPerHalf: number = 20;
+    // default settings
+    fieldPlayers: number = 8; // number of players on the field 
+    minutesPerHalf: number = 30; // how long each half lasts 
     fullGame: boolean = false;
 
     constructor(data = {}) {

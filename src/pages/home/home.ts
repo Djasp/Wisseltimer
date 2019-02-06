@@ -39,8 +39,8 @@ export class HomePage {
   private currentIndex: number = 0;
   private currentGame: Game;
   private currentMatrix: Matrix;
-  private currentPitch: string[] = [];
-  private currentBench: string[] = [];
+  private currentPitch: Player[] = [];
+  private currentBench: Player[] = [];
   private currentTeam: Team;
   private allowStart: boolean = false;
   private presentPlayers: Player[] = [];
@@ -95,6 +95,9 @@ export class HomePage {
           this.currentSettings.minutesPerHalf
 
         ).subscribe((data: Matrix) => {
+          
+          console.log("subscribe");
+
           // get matrix 
           this.currentMatrix = data;
 
@@ -113,9 +116,9 @@ export class HomePage {
             this.substitutes = data;
           });
 
-          console.log("Matrix", this.currentMatrix.matrix);
-          console.log("Timeblocks", this.currentMatrix.timeBlocks);
-          console.log("Substitutes", this.substitutes);
+          // console.log("Matrix", this.currentMatrix.matrix);
+          // console.log("Timeblocks", this.currentMatrix.timeBlocks);
+          // console.log("Substitutes", this.substitutes);
         });
       }
     });
@@ -124,54 +127,66 @@ export class HomePage {
   /**
    * Get the players that are now supposed to be on the field
    * 
-   * @returns {Observable<string[]>} 
+   * @returns {Observable<Player[]>} 
    * @memberof HomePage
    */
-  public getCurrentPitch(): Observable<string[]> {
-    return Observable.of(this._getCurrentPitch(this.currentIndex));
+  public getCurrentPitch(): Observable<Player[]> {
+    
+    console.log("getting current pitch for index", this.currentIndex);
+
+    return Observable.of(this._getCurrentPitchForGivenIndex(this.currentIndex));
   }
 
   /**
    * Get the players that are now supposed to be on the bench
    *
-   * @private
-   * @returns {Observable<string[]>}
+      * @returns {Observable<Player[]>}
    * @memberof HomePage
    */
-  private getCurrentBench(): Observable<string[]> {
-    let playerNamesOnTheBench: string[] = [];
-    let current = this._getCurrentPitch(this.currentIndex); // get all players now on pitch  
+  public getCurrentBench(): Observable<Player[]> {
+   // let playersOnTheBench: Player[] = [];
+   console.log("getting current bench for index", this.currentIndex);
+   
+    let playersOnThePitch = this._getCurrentPitchForGivenIndex(this.currentIndex); // get all players now on pitch  
 
-    let bench = this.currentTeam.players.filter(p => p.isPresent && current.indexOf(p.name) == -1);
+    let playersAvailable = this.currentTeam.players.filter(p => p.isPresent); // get all players that are present 
+    let bench = playersAvailable.filter(item => playersOnThePitch.indexOf(item) < 0); // players that are present and are not on the pitch, must be on the bench. 
 
-    bench.forEach(element => {
-      playerNamesOnTheBench.push(element.name);
-    });
+    // bench.forEach(element => {
+    //   playersOnTheBench.push(element);
+    // });
 
-    return Observable.of(playerNamesOnTheBench);
+    return Observable.of(bench);
   }
 
-  private getSubstitutes(): Observable<Substitute[]> {
+  /**
+   * Get the roster of Substitutes
+   *
+   * @returns {Observable<Substitute[]>}
+   * @memberof HomePage
+   */
+  public getSubstitutes(): Observable<Substitute[]> {
     let substitutes: Substitute[] = [];
+
     console.log("Start substitutes", this.currentMatrix.timeBlocks);
-    let q: number = this._getCurrentPitch(0).length; //this.currentMatrix.timeBlocks.length - 1;
+    let q: number = this._getCurrentPitchForGivenIndex(0).length; //this.currentMatrix.timeBlocks.length - 1;
     let sp: number = this.currentTeam.players.filter(p => p.isPresent && !p.doNotSubstitute).length;
     
     //console.log(q, sp);
 
     for (let i: number = 1; i < sp; i++) {
-      let current: string[] = this._getCurrentPitch(i); // get all players now on the pitch in this block
-      let previous: string[] = this._getCurrentPitch(i - 1); // get all players previously on pitch 
+      let current: Player[] = this._getCurrentPitchForGivenIndex(i); // get all players now on the pitch in this block
+      let previous: Player[] = this._getCurrentPitchForGivenIndex(i - 1); // get all players previously on pitch 
 
-      if(i === 1) {
-        console.log("getSubstitutes()", i, current, previous);
-      }
+      // if(i === 1) {
+      //   console.log("getSubstitutes()", i, current, previous);
+      // }
 
       for (let x: number = 0; x <= q; x++) {
         if (current[x] != previous[x]) {
           // store the substitute. Because the timeblocks represent the END of the block, we store the previous block.
           // (the end of the previous is the beginning of the current)          
-          substitutes.push(new Substitute(current[x], previous[x], this.currentMatrix.timeBlocks[i - 1], i));
+          substitutes.push(new Substitute(current[x].name, previous[x].name, this.currentMatrix.timeBlocks[i - 1], i));
         }
       }
     }
@@ -179,18 +194,37 @@ export class HomePage {
     return Observable.of(substitutes);
   }
 
-  private _getCurrentPitch(col: number): string[] {
-    let playerNamesOnTheField: string[] = this.currentMatrix.matrix.map(function (value, index) { return value[col]; });
-    let notSubstitablePlayers: Player[] = this.currentTeam.players.filter(p => p.isPresent && p.doNotSubstitute);
+  /**
+   * Get the players on the field, including players that must not be substituted.
+   *
+   * @private
+   * @param {number} givenIndex
+   * @returns {Player[]}
+   * @memberof HomePage
+   */
+  private _getCurrentPitchForGivenIndex(givenIndex: number): Player[] {
+    let playersNamesOnTheFieldFromMatrix: string[] = this.currentMatrix.matrix.map(function (value) { return value[givenIndex]; });
+    let playersOnTheField: Player[] = [];
+    let notSubstitutablePlayers: Player[] = this.currentTeam.players.filter(p => p.isPresent && p.doNotSubstitute);
 
-    notSubstitablePlayers.forEach(element => {
-      playerNamesOnTheField.push(element.name);
+    // loop through the playername from the matrix and collect the 
+    // player objects from the current team array and push it to the 
+    // array that contains the players on the field
+    playersNamesOnTheFieldFromMatrix.forEach(name => {     
+      let player = this.currentTeam.players.filter(p => p.isPresent && !p.doNotSubstitute).find(p => p.name === name); 
+      if(typeof player !== "undefined") {
+        playersOnTheField.push(player);
+      }
     });
 
-    return playerNamesOnTheField;
+    notSubstitutablePlayers.forEach(element => {
+      playersOnTheField.push(element);
+    });
+
+    return playersOnTheField;
   }
 
-  /** Go to the attendate page */
+  /** Go to the attendance page */
   goToAttendance() {
     this.navCtrl.push(AttendancePage);
   }

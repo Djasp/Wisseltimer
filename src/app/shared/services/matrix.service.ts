@@ -8,8 +8,7 @@ import 'rxjs/add/observable/of';
 
 @Injectable()
 export class MatrixService {
-    private MATRIX = "matrix";
-    private timeBlocks: number[] = [];
+    private MATRIX = "matrix";    
     private currentMatrix: Matrix;
   
     constructor(private storage: Storage) {
@@ -69,7 +68,7 @@ export class MatrixService {
         matrix.timeBlocks = [];
         for (let y: number = 1; y <= numberOfSubstitutablePeople; y++) {
             let seconds: number = secondsPerPlayer * y;
-            matrix.timeBlocks.push(seconds);
+            matrix.timeBlocks.push(Math.round(seconds));
         }
 
         // create the matrix. Fill the field with numbers that are to be  replaced with actual player names 

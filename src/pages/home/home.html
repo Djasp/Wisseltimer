@@ -16,7 +16,7 @@
   <div *ngIf="!formationDone && allowStart">
     <p>Bepaal de opstelling, basis en wissels.</p>
     <button ion-button full icon-left round (click)="goToAttendance()" *ngIf="!formationDone && allowStart">
-      <ion-icon name="people" ></ion-icon> Opstelling
+      <ion-icon name="people"></ion-icon> Opstelling
     </button>
   </div> 
   <div *ngIf="formationDone">
@@ -27,18 +27,18 @@
     <button ion-button color="danger" full icon-left round (click)="stopGame()" *ngIf="currentGame.gameStarted && currentGame.gamePaused"><ion-icon name="square"></ion-icon> Beëindig {{whatWePlay}}</button>
 
     <h4>Veld</h4>
-    <ion-badge *ngFor="let playername of currentPitch">
-      {{playername}}
+    <ion-badge *ngFor="let player of currentPitch">
+      {{player.name}}
     </ion-badge>
     <hr>
     <h4>Bank</h4>
-    <ion-badge *ngFor="let playername of currentBench">
-      {{playername}}
+    <ion-badge *ngFor="let player of currentBench">
+      {{player.name}}
     </ion-badge>
     <hr>
     <h4>Wissel rooster</h4>
     <div *ngFor="let player of substitutes">
-      <div *ngIf="currentIndex <= player.index">
+      <div *ngIf="currentIndex < player.index">
         <h5> {{player.formattedTime()}}</h5>
         <ion-list>
           <ion-item *ngIf="player.inName !=''">
